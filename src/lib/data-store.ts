@@ -19,6 +19,33 @@ const COL_DECEASED = 6; // 亡者姓名
 const COL_INFANTS = 7; // 堕胎婴灵姓名
 const COL_ANIMALS = 8; // 旁生姓名
 
+/**
+ * 智能提取真实姓名，删除无效信息
+ * @param raw 原始姓名
+ * @param category 类别：'deceased' | 'infants' | 'animals'
+ */
+function cleanName(raw: string, category: 'deceased' | 'infants' | 'animals'): string {
+  let name = raw;
+
+  // 1. 删除关键词（堕胎婴灵仅在非堕胎婴灵栏删除）
+  if (category !== 'infants') {
+    name = name.replace(/堕胎婴灵/g, '');
+  }
+  name = name.replace(/亡者|姓名|旁生/g, '');
+
+  // 2. 删除标点符号和连接符
+  name = name.replace(/[：:、,，\-—+]/g, '');
+  name = name.replace(/[()（）]/g, '');
+
+  // 3. 删除"父母之一"、"父母"前缀（仅在堕胎婴灵栏）
+  if (category === 'infants') {
+    name = name.replace(/父母之一|父母/g, '');
+  }
+
+  // 4. 清理首尾空格
+  return name.trim();
+}
+
 export function parseCSV(csvText: string): SiteData {
   const result = Papa.parse<string[]>(csvText, {
     skipEmptyLines: true,
@@ -37,9 +64,11 @@ export function parseCSV(csvText: string): SiteData {
 
     const date = (row[COL_DATE] || '').trim();
     const category = (row[COL_CATEGORY] || '').trim();
-    const deceasedName = (row[COL_DECEASED] || '').trim().replace(/亡者|姓名/g, '');
-    const infantName = (row[COL_INFANTS] || '').trim().replace(/亡者|姓名/g, '');
-    const animalName = (row[COL_ANIMALS] || '').trim().replace(/亡者|姓名/g, '');
+
+    // 智能提取姓名
+    const deceasedName = cleanName((row[COL_DECEASED] || '').trim(), 'deceased');
+    const infantName = cleanName((row[COL_INFANTS] || '').trim(), 'infants');
+    const animalName = cleanName((row[COL_ANIMALS] || '').trim(), 'animals');
 
     if (!date) continue;
 
