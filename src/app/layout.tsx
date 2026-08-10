@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: '共修功德 - 往生超度功德回向',
+  title: 'PW影院助念名单',
   description:
     '以此共修功德，回向法界一切亡者、堕胎婴灵及旁生众生，祈愿往生净土，离苦得乐。',
 };

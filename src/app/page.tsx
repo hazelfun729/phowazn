@@ -66,7 +66,7 @@ function Nav() {
           href="#hero"
           className="font-serif text-lg tracking-widest text-[#2c2c2c]"
         >
-          共修功德
+          PW影院助念名单
         </a>
         <div className="flex gap-6 font-serif text-sm tracking-wide text-[#6b6560]">
           <a href="#deceased" className="transition-colors hover:text-[#2c2c2c]">
@@ -130,7 +130,7 @@ function HeroSection() {
         </div>
 
         <h1 className="section-title mb-6 font-serif text-4xl font-bold tracking-[0.25em] text-[#2c2c2c] md:text-5xl">
-          共修功德
+          PW影院助念名单
         </h1>
 
         <p className="mb-12 font-serif text-lg tracking-[0.15em] text-[#6b6560] md:text-xl">
@@ -289,7 +289,7 @@ function Footer({ updatedAt }: { updatedAt: string | null }) {
           </p>
         )}
         <p className="font-serif text-xs text-[#a09a94]">
-          &copy; {new Date().getFullYear()} 共修功德回向平台 &middot;
+          &copy; {new Date().getFullYear()} PW影院助念名单 &middot;
           所有数据仅供内部共修使用
         </p>
         <p className="mt-2 font-serif text-xs text-[#b8b2ab]">
@@ -384,7 +384,7 @@ export default function Home() {
         <NameListSection
           id="deceased"
           title="亡者"
-          subtitle="四十九日内往生者名号"
+          subtitle="四十九日内往生者名单"
           entries={deceasedFiltered}
           updatedAt={updatedAt}
         />
@@ -392,7 +392,7 @@ export default function Home() {
         <NameListSection
           id="infants"
           title="堕胎婴灵"
-          subtitle="四十九日内堕胎婴灵名号"
+          subtitle="四十九日内堕胎婴灵名单"
           entries={infantsFiltered}
           updatedAt={updatedAt}
         />
@@ -400,7 +400,7 @@ export default function Home() {
         <NameListSection
           id="animals"
           title="旁生"
-          subtitle="四十九日内旁生众生名号"
+          subtitle="四十九日内旁生众生名单"
           entries={animalsFiltered}
           updatedAt={updatedAt}
         />
