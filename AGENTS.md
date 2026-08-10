@@ -63,3 +63,25 @@
 
 - 模板默认预装核心组件库 `shadcn/ui`，位于`src/components/ui/`目录下
 - Next.js 项目**必须默认**采用 shadcn/ui 组件、风格和规范，**除非用户指定用其他的组件和规范。**
+
+## 项目业务说明
+
+### 功能概述
+共修功德回向展示平台，面向公众展示亡者、堕胎婴灵、旁生三类数据，管理员通过隐藏路径上传CSV数据。
+
+### 关键文件
+- `src/app/page.tsx` - 主页面（单页滚动：HERO → 亡者 → 堕胎婴灵 → 旁生 → 结语）
+- `src/app/admin/page.tsx` - 隐藏管理页面（/admin），CSV上传
+- `src/app/api/upload/route.ts` - CSV上传解析API（POST multipart/form-data）
+- `src/app/api/data/route.ts` - 数据获取API（GET）
+- `src/lib/data-store.ts` - CSV解析逻辑与数据类型定义
+- `public/data/names.json` - 解析后的数据存储文件
+
+### 数据逻辑
+- CSV列映射：E列=往生日期, F列=分类(A.亡者/B.堕胎婴灵/C.旁生), G列=亡者姓名, H列=堕胎婴灵姓名, I列=旁生姓名
+- 前端筛选：以数据上传时间为基准，仅展示49天内的记录
+- 去重规则：同一栏目内姓名精确匹配去重
+- 排序：按往生日期降序
+
+### 设计风格
+水墨风格、古典庄重，详见 `DESIGN.md`
