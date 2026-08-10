@@ -37,9 +37,9 @@ export function parseCSV(csvText: string): SiteData {
 
     const date = (row[COL_DATE] || '').trim();
     const category = (row[COL_CATEGORY] || '').trim();
-    const deceasedName = (row[COL_DECEASED] || '').trim();
-    const infantName = (row[COL_INFANTS] || '').trim();
-    const animalName = (row[COL_ANIMALS] || '').trim();
+    const deceasedName = (row[COL_DECEASED] || '').trim().replace(/亡者|姓名/g, '');
+    const infantName = (row[COL_INFANTS] || '').trim().replace(/亡者|姓名/g, '');
+    const animalName = (row[COL_ANIMALS] || '').trim().replace(/亡者|姓名/g, '');
 
     if (!date) continue;
 

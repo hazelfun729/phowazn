@@ -206,11 +206,6 @@ function NameListSection({
         <p className="mb-2 text-center font-serif text-sm tracking-wide text-[#6b6560]">
           {subtitle}
         </p>
-        {updatedAt && (
-          <p className="mb-10 text-center font-serif text-xs text-[#a09a94]">
-            数据更新：{formatUpdateTime(updatedAt)}
-          </p>
-        )}
 
         <div className="ink-divider" />
 
@@ -252,7 +247,7 @@ function ConclusionSection() {
               往生愿文
             </h3>
             <p className="prayer-text">
-              为主的一切亡者，
+              以以上众生为主的一切亡者，
               <br />
               愿业障消除，福慧增长，
               <br />
