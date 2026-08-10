@@ -156,8 +156,6 @@ function HeroSection() {
             在这个时候，亡者最需要亲友的帮助。
           </p>
           <p className="font-serif text-base text-[#2c2c2c] md:text-lg">
-            Pw影院每周定期为有缘亡者助念，
-            <br />
             让我们一起发慈悲之心，
             <br />
             帮助这些独自漂泊在中阴的无助亡者们！
