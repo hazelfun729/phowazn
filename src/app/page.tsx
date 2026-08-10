@@ -64,38 +64,23 @@ function Nav() {
       <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
         <a
           href="#hero"
-          className={`font-serif text-lg tracking-widest transition-colors duration-500 ${
-            scrolled ? 'text-[#2c2c2c]' : 'text-white'
-          }`}
+          className="font-serif text-lg tracking-widest text-[#2c2c2c]"
         >
           共修功德
         </a>
-        <div
-          className={`flex gap-6 font-serif text-sm tracking-wide transition-colors duration-500 ${
-            scrolled ? 'text-[#6b6560]' : 'text-white/70'
-          }`}
-        >
-          <a
-            href="#deceased"
-            className={`transition-colors ${scrolled ? 'hover:text-[#2c2c2c]' : 'hover:text-white'}`}
-          >
+        <div className="flex gap-6 font-serif text-sm tracking-wide text-[#6b6560]">
+          <a href="#deceased" className="transition-colors hover:text-[#2c2c2c]">
             亡者
           </a>
-          <a
-            href="#infants"
-            className={`transition-colors ${scrolled ? 'hover:text-[#2c2c2c]' : 'hover:text-white'}`}
-          >
+          <a href="#infants" className="transition-colors hover:text-[#2c2c2c]">
             堕胎婴灵
           </a>
-          <a
-            href="#animals"
-            className={`transition-colors ${scrolled ? 'hover:text-[#2c2c2c]' : 'hover:text-white'}`}
-          >
+          <a href="#animals" className="transition-colors hover:text-[#2c2c2c]">
             旁生
           </a>
           <a
             href="#conclusion"
-            className={`transition-colors ${scrolled ? 'hover:text-[#2c2c2c]' : 'hover:text-white'}`}
+            className="transition-colors hover:text-[#2c2c2c]"
           >
             结语
           </a>
@@ -117,13 +102,13 @@ function HeroSection() {
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: 'url(/hero-lotus.jpeg)' }}
       />
-      {/* 暗色遮罩 */}
-      <div className="absolute inset-0 bg-black/50" />
+      {/* 轻柔暖色遮罩 - 保持明亮有希望感 */}
+      <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-white/20 to-[#faf8f5]/60" />
 
       {/* 内容 */}
       <div className="relative z-10 mx-auto max-w-3xl px-6 py-24 text-center">
         {/* 莲花装饰符号 */}
-        <div className="mb-10 text-white/40">
+        <div className="mb-10 text-[#8b6914]/40">
           <svg
             width="48"
             height="48"
@@ -144,39 +129,43 @@ function HeroSection() {
           </svg>
         </div>
 
-        <h1 className="mb-6 font-serif text-4xl font-bold tracking-[0.25em] text-white md:text-5xl">
+        <h1 className="section-title mb-6 font-serif text-4xl font-bold tracking-[0.25em] text-[#2c2c2c] md:text-5xl">
           共修功德
         </h1>
 
-        <p className="mb-12 font-serif text-lg tracking-[0.15em] text-white/70 md:text-xl">
+        <p className="mb-12 font-serif text-lg tracking-[0.15em] text-[#6b6560] md:text-xl">
           往生超度 &middot; 功德回向
         </p>
 
         {/* 分隔线 */}
-        <div className="mx-auto mb-12 h-px w-24 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+        <div className="ink-divider" />
 
-        <blockquote className="mx-auto max-w-2xl font-serif text-base leading-[2.4] tracking-wide text-white/80 md:text-lg">
+        <div className="mx-auto mt-10 max-w-2xl font-serif text-base leading-[2.4] tracking-wide text-[#4a4540] md:text-lg">
           <p className="mb-6">
-            &ldquo;诸法因缘生，诸法因缘灭。
+            人去世的时候会非常可怜，就像中阴窍诀所描述的：
             <br />
-            我等大慈大悲的导师释迦牟尼佛，
+            前有阎罗狱卒牵引，后有业风吹动。
             <br />
-            以无碍智慧照见一切众生之苦。&rdquo;
+            虽然万般不情愿，却不得不舍弃今生的一切，
+            <br />
+            踏上通往来世的中阴长道，
+            <br />
+            独自面对各种恐怖的景象。
           </p>
           <p className="mb-6">
-            以此共修之殊胜功德，
-            <br />
-            回向法界一切亡者、堕胎婴灵及旁生众生，
-            <br />
-            祈愿蒙佛接引，往生净土，离苦得乐。
+            在这个时候，亡者最需要亲友的帮助。
           </p>
-          <cite className="mt-6 block text-sm not-italic text-[#d4b86a]">
-            -- 希阿荣博堪布
-          </cite>
-        </blockquote>
+          <p className="font-serif text-base text-[#2c2c2c] md:text-lg">
+            Pw影院每周定期为有缘亡者助念，
+            <br />
+            让我们一起发慈悲之心，
+            <br />
+            帮助这些独自漂泊在中阴的无助亡者们！
+          </p>
+        </div>
 
         {/* 向下引导 */}
-        <div className="mt-20 animate-bounce text-white/30">
+        <div className="mt-20 animate-bounce text-[#6b6560]/40">
           <svg
             width="24"
             height="24"
@@ -263,13 +252,15 @@ function ConclusionSection() {
               往生愿文
             </h3>
             <p className="prayer-text">
-              愿以此功德，回向法界一切亡者，
+              为主的一切亡者，
               <br />
-              祈愿阿弥陀佛慈悲接引，
+              愿业障消除，福慧增长，
+              <br />
+              蒙佛光摄受，慈悲接引，
               <br />
               往生西方极乐世界，
               <br />
-              莲品增上，早证菩提。
+              早日乘愿再来，广度众生。
             </p>
           </div>
 
@@ -283,7 +274,7 @@ function ConclusionSection() {
             <p className="prayer-text">
               愿生西方净土中，九品莲花为父母，
               <br />
-              花开见佛悟无生，不退菩萨为伴侣。
+              华开见佛悟无生，不退菩萨为伴侣。
             </p>
           </div>
         </div>
