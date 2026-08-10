@@ -245,7 +245,7 @@ function ConclusionSection() {
               往生愿文
             </h3>
             <p className="prayer-text">
-              以以上众生为主的一切亡者，
+              以上众生为主的一切亡者，
               <br />
               愿业障消除，福慧增长，
               <br />
@@ -261,9 +261,6 @@ function ConclusionSection() {
 
           {/* 愿生净土文 */}
           <div>
-            <h3 className="mb-6 font-serif text-lg tracking-widest text-[#8b6914]">
-              愿生净土文
-            </h3>
             <p className="prayer-text">
               愿生西方净土中，九品莲花为父母，
               <br />
