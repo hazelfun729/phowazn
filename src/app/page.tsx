@@ -220,7 +220,7 @@ function NameListSection({
           </div>
         ) : (
           <p className="mt-12 text-center font-serif text-sm text-[#a09a94]">
-            暂无数据
+            暂无
           </p>
         )}
       </div>
@@ -290,7 +290,7 @@ function Footer({ updatedAt }: { updatedAt: string | null }) {
         )}
         <p className="font-serif text-xs text-[#a09a94]">
           &copy; {new Date().getFullYear()} PW影院助念名单 &middot;
-          所有数据仅供内部共修使用
+          所有数据仅供内部回向使用
         </p>
         <p className="mt-2 font-serif text-xs text-[#b8b2ab]">
           隐私声明：本页所有姓名信息仅用于功德回向，不作任何其他用途。
