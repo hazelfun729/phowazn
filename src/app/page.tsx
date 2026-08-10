@@ -64,23 +64,38 @@ function Nav() {
       <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
         <a
           href="#hero"
-          className="font-serif text-lg tracking-widest text-[#2c2c2c]"
+          className={`font-serif text-lg tracking-widest transition-colors duration-500 ${
+            scrolled ? 'text-[#2c2c2c]' : 'text-white'
+          }`}
         >
           共修功德
         </a>
-        <div className="flex gap-6 font-serif text-sm tracking-wide text-[#6b6560]">
-          <a href="#deceased" className="transition-colors hover:text-[#2c2c2c]">
+        <div
+          className={`flex gap-6 font-serif text-sm tracking-wide transition-colors duration-500 ${
+            scrolled ? 'text-[#6b6560]' : 'text-white/70'
+          }`}
+        >
+          <a
+            href="#deceased"
+            className={`transition-colors ${scrolled ? 'hover:text-[#2c2c2c]' : 'hover:text-white'}`}
+          >
             亡者
           </a>
-          <a href="#infants" className="transition-colors hover:text-[#2c2c2c]">
+          <a
+            href="#infants"
+            className={`transition-colors ${scrolled ? 'hover:text-[#2c2c2c]' : 'hover:text-white'}`}
+          >
             堕胎婴灵
           </a>
-          <a href="#animals" className="transition-colors hover:text-[#2c2c2c]">
+          <a
+            href="#animals"
+            className={`transition-colors ${scrolled ? 'hover:text-[#2c2c2c]' : 'hover:text-white'}`}
+          >
             旁生
           </a>
           <a
             href="#conclusion"
-            className="transition-colors hover:text-[#2c2c2c]"
+            className={`transition-colors ${scrolled ? 'hover:text-[#2c2c2c]' : 'hover:text-white'}`}
           >
             结语
           </a>
@@ -95,59 +110,73 @@ function HeroSection() {
   return (
     <section
       id="hero"
-      className="flex min-h-screen flex-col items-center justify-center px-6 py-24"
+      className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden"
     >
-      <div className="mx-auto max-w-3xl text-center">
-        {/* 顶部装饰 */}
-        <div className="mb-12 text-[#8b6914] opacity-60">
+      {/* 背景图 */}
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: 'url(/hero-lotus.jpeg)' }}
+      />
+      {/* 暗色遮罩 */}
+      <div className="absolute inset-0 bg-black/50" />
+
+      {/* 内容 */}
+      <div className="relative z-10 mx-auto max-w-3xl px-6 py-24 text-center">
+        {/* 莲花装饰符号 */}
+        <div className="mb-10 text-white/40">
           <svg
-            width="60"
-            height="30"
-            viewBox="0 0 60 30"
+            width="48"
+            height="48"
+            viewBox="0 0 48 48"
             fill="none"
             className="mx-auto"
           >
             <path
-              d="M30 0C30 0 20 12 10 15C20 18 30 30 30 30C30 30 40 18 50 15C40 12 30 0 30 0Z"
+              d="M24 4C24 4 18 14 12 18C18 22 24 32 24 32C24 32 30 22 36 18C30 14 24 4 24 4Z"
               fill="currentColor"
-              opacity="0.3"
+              opacity="0.5"
+            />
+            <path
+              d="M24 10C24 10 14 16 8 22C16 24 24 34 24 34C24 34 32 24 40 22C34 16 24 10 24 10Z"
+              fill="currentColor"
+              opacity="0.25"
             />
           </svg>
         </div>
 
-        <h1
-          className="section-title mb-8 font-serif text-4xl font-bold tracking-[0.2em] text-[#2c2c2c] md:text-5xl"
-        >
+        <h1 className="mb-6 font-serif text-4xl font-bold tracking-[0.25em] text-white md:text-5xl">
           共修功德
         </h1>
 
-        <p className="mb-10 font-serif text-lg leading-loose tracking-wide text-[#6b6560] md:text-xl">
+        <p className="mb-12 font-serif text-lg tracking-[0.15em] text-white/70 md:text-xl">
           往生超度 &middot; 功德回向
         </p>
 
-        <div className="ink-divider" />
+        {/* 分隔线 */}
+        <div className="mx-auto mb-12 h-px w-24 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
 
-        <blockquote className="mx-auto mt-10 max-w-2xl font-serif text-base leading-[2.2] tracking-wide text-[#4a4540] md:text-lg">
-          <p className="mb-4">
-            &ldquo;以其所修一切善根，回向法界一切众生，
+        <blockquote className="mx-auto max-w-2xl font-serif text-base leading-[2.4] tracking-wide text-white/80 md:text-lg">
+          <p className="mb-6">
+            &ldquo;诸法因缘生，诸法因缘灭。
             <br />
-            愿彼等皆能离苦得乐，往生净土。&rdquo;
+            我等大慈大悲的导师释迦牟尼佛，
+            <br />
+            以无碍智慧照见一切众生之苦。&rdquo;
           </p>
-          <cite className="mt-4 block text-sm not-italic text-[#8b6914]">
+          <p className="mb-6">
+            以此共修之殊胜功德，
+            <br />
+            回向法界一切亡者、堕胎婴灵及旁生众生，
+            <br />
+            祈愿蒙佛接引，往生净土，离苦得乐。
+          </p>
+          <cite className="mt-6 block text-sm not-italic text-[#d4b86a]">
             -- 希阿荣博堪布
           </cite>
         </blockquote>
 
-        <div className="mt-16 font-serif text-sm tracking-wider text-[#6b6560]">
-          <p>
-            以此共修之功德，回向法界一切亡者、
-            <br />
-            堕胎婴灵及旁生众生
-          </p>
-        </div>
-
         {/* 向下引导 */}
-        <div className="mt-20 animate-bounce text-[#6b6560] opacity-50">
+        <div className="mt-20 animate-bounce text-white/30">
           <svg
             width="24"
             height="24"
@@ -255,32 +284,6 @@ function ConclusionSection() {
               愿生西方净土中，九品莲花为父母，
               <br />
               花开见佛悟无生，不退菩萨为伴侣。
-            </p>
-          </div>
-
-          <div className="ink-divider" />
-
-          {/* 超度祈愿 */}
-          <div>
-            <h3 className="mb-6 font-serif text-lg tracking-widest text-[#8b6914]">
-              超度祈愿
-            </h3>
-            <p className="prayer-text">
-              祈愿一切堕胎婴灵，蒙佛加持，
-              <br />
-              放下执念，往生善道。
-              <br />
-              <br />
-              祈愿一切旁生众生，脱离畜道，
-              <br />
-              得闻佛法，究竟解脱。
-              <br />
-              <br />
-              南无阿弥陀佛
-              <br />
-              南无阿弥陀佛
-              <br />
-              南无阿弥陀佛
             </p>
           </div>
         </div>
