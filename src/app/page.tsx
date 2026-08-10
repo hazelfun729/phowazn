@@ -82,7 +82,7 @@ function Nav() {
             href="#conclusion"
             className="transition-colors hover:text-[#2c2c2c]"
           >
-            结语
+            回向
           </a>
         </div>
       </div>
@@ -242,7 +242,7 @@ function ConclusionSection() {
     >
       <div className="mx-auto max-w-2xl text-center">
         <h2 className="section-title mb-12 font-serif text-2xl font-semibold tracking-[0.15em] text-[#2c2c2c] md:text-3xl">
-          结语
+          回向
         </h2>
 
         <div className="space-y-12">
