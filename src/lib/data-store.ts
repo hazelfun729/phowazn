@@ -34,7 +34,7 @@ function cleanName(raw: string, category: 'deceased' | 'infants' | 'animals'): s
   name = name.replace(/亡者|姓名|旁生/g, '');
 
   // 2. 删除标点符号和连接符（保留括号用于注音）
-  name = name.replace(/[：:、,，\-—+]/g, '');
+  name = name.replace(/[：:、,，\-—+。.]/g, '');
 
   // 3. 删除"父母之一"、"父母"前缀（仅在堕胎婴灵栏）
   if (category === 'infants') {
