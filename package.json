@@ -3,11 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "next build",
-    "dev": "next dev",
+    "build": "bash ./scripts/build.sh",
+    "dev": "bash ./scripts/dev.sh",
     "preinstall": "npx only-allow pnpm",
     "lint": "eslint",
-    "start": "next start"
+    "lint:build": "eslint . --quiet",
+    "lint:style": "stylelint \"src/**/*.css\"",
+    "start": "bash ./scripts/start.sh",
+    "ts-check": "tsc -p tsconfig.json",
+    "validate": "pnpm dlx concurrently --group --names lint-tsc,lint-build,lint-style \"pnpm ts-check\" \"pnpm lint:build\" \"pnpm lint:style\"",
+    "build:cloudflare": "opennextjs-cloudflare build",
+    "deploy:cloudflare": "wrangler pages deploy .vercel/output/static --project-name phowa"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.958.0",

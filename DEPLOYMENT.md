@@ -1,129 +1,149 @@
 # Cloudflare Pages 部署指南
 
-## 项目说明
+## 前置准备
 
-这是一个纯静态前端网站，使用 HTML + CSS + JavaScript 构建，后端使用 Supabase Edge Functions。
+### 1. 注册账号
+- 访问 https://cloudflare.com
+- 注册免费账号（无需翻墙）
+
+### 2. 准备 GitHub 仓库
+- 将代码推送到 GitHub
+- 确保仓库包含所有必要文件
+
+---
 
 ## 部署步骤
 
-### 1. 更新 GitHub 仓库
+### 第1步：进入 Cloudflare Dashboard
+1. 登录 https://dash.cloudflare.com
+2. 左侧菜单点击 "Workers & Pages"
+3. 点击 "Create" → "Pages"
 
-将最新代码推送到 GitHub：
+### 第2步：连接 GitHub
+1. 点击 "Connect to Git"
+2. 授权 Cloudflare 访问你的 GitHub
+3. 选择你的仓库
 
-```bash
-cd /workspace/projects
-git add .
-git commit -m "feat: 重构为纯静态前端 + Supabase Edge Functions"
-git push origin main
+### 第3步：配置构建设置
+
+| 配置项 | 值 |
+|--------|-----|
+| **Project name** | phowa-merit（或你喜欢的名字） |
+| **Production branch** | main |
+| **Framework preset** | Next.js |
+| **Build command** | `pnpm install && pnpm next build` |
+| **Build output directory** | `.next` |
+| **Root directory** | `/`（留空） |
+
+### 第4步：添加环境变量
+
+在 "Environment Variables" 部分添加：
+
+| 变量名 | 值 | 说明 |
+|--------|-----|------|
+| `NEXT_PUBLIC_SUPABASE_URL` | 你的 Supabase URL | 从 Supabase 控制台获取 |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | 你的 Supabase Anon Key | 从 Supabase 控制台获取 |
+| `SUPABASE_SERVICE_ROLE_KEY` | 你的 Supabase Service Role Key | 从 Supabase 控制台获取 |
+
+**获取 Supabase 密钥的方法**：
+1. 登录 https://supabase.com/dashboard
+2. 选择你的项目
+3. 点击左侧 "Settings" → "API"
+4. 复制以下值：
+   - Project URL → `NEXT_PUBLIC_SUPABASE_URL`
+   - anon public key → `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - service_role secret → `SUPABASE_SERVICE_ROLE_KEY`
+
+### 第5步：部署
+1. 点击 "Save and Deploy"
+2. 等待构建完成（约2-5分钟）
+3. 部署成功后会获得域名：`phowa-merit.pages.dev`
+
+---
+
+## 自定义域名（可选）
+
+### 使用 Cloudflare 域名
+1. 在 Cloudflare Dashboard 添加域名
+2. 在 Pages 项目设置中绑定域名
+3. 自动配置 DNS 和 SSL
+
+### 使用第三方域名
+1. 在域名服务商处添加 DNS 记录
+2. 在 Cloudflare Pages 设置中添加自定义域名
+3. 验证 DNS 配置
+
+---
+
+## 环境变量说明
+
+### 必须配置的环境变量
+
+```env
+# Supabase 数据库连接
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 ```
 
-### 2. 配置 Cloudflare Pages
+### 如何获取
 
-1. 登录 Cloudflare Dashboard
-2. 进入 Workers & Pages
-3. 选择你的项目 `phowa`
-4. 进入 Settings > Build & Deploy
+1. **NEXT_PUBLIC_SUPABASE_URL**
+   - Supabase Dashboard → Settings → API → Project URL
 
-### 3. 修改构建配置
+2. **NEXT_PUBLIC_SUPABASE_ANON_KEY**
+   - Supabase Dashboard → Settings → API → anon public key
 
-由于现在是纯静态站点，需要修改构建配置：
+3. **SUPABASE_SERVICE_ROLE_KEY**
+   - Supabase Dashboard → Settings → API → service_role secret
+   - ⚠️ 注意：此密钥有完全数据库访问权限，不要泄露
 
-**Build settings:**
-- Framework preset: `None`
-- Build command: 留空 或 `echo 'Static site'`
-- Build output directory: `public`
+---
 
-### 4. 配置环境变量
+## 部署后检查清单
 
-在 Cloudflare Pages 的 Settings > Environment variables 中添加：
+- [ ] 访问生产域名，确认页面正常显示
+- [ ] 测试表单提交功能
+- [ ] 测试数据查询功能
+- [ ] 确认 Supabase 数据正常写入
+- [ ] 测试移动端响应式布局
+- [ ] 生成新的二维码（使用生产域名）
 
-**Production:**
-- `SUPABASE_URL`: `https://ekgbhbvbnxgqtnhjhqag.supabase.co`
-- `SUPABASE_ANON_KEY`: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVrZ2JoYnZibnhncXRuaGpocWFnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzOTg0OTQsImV4cCI6MjEwMTk3NDQ5NH0.0ddEEOIE7sFkWVnM6LhrK-jESoTPQJLXtRu1AW01IGw`
+---
 
-**Preview:**
-- 同上
+## 常见问题
 
-### 5. 重新部署
+### Q: 构建失败怎么办？
+A: 检查构建日志，通常是环境变量缺失或依赖安装问题
 
-1. 进入 Deployments 标签
-2. 点击最新的部署记录
-3. 点击 "Retry deployment"
+### Q: 页面显示空白？
+A: 检查浏览器控制台错误，通常是环境变量配置错误
 
-## Supabase Edge Functions 部署
+### Q: 表单提交失败？
+A: 检查 Supabase 密钥是否正确，RLS 策略是否启用
 
-Edge Functions 需要单独部署到 Supabase：
+### Q: 如何更新代码？
+A: 推送代码到 GitHub，Cloudflare Pages 会自动重新部署
 
-### 方法 1: 使用 Supabase CLI（推荐）
+---
 
-1. 安装 Supabase CLI:
-```bash
-npm install -g supabase
-```
+## 更新部署
 
-2. 登录 Supabase:
-```bash
-supabase login
-```
+每次推送代码到 GitHub 的 main 分支，Cloudflare Pages 会自动：
+1. 拉取最新代码
+2. 执行构建命令
+3. 部署新版本
+4. 保持旧版本可回滚
 
-3. 链接项目:
-```bash
-supabase link --project-ref ekgbhbvbnxgqtnhjhqag
-```
+---
 
-4. 部署 Edge Functions:
-```bash
-supabase functions deploy submit
-supabase functions deploy records
-supabase functions deploy cleanup
-```
+## 费用说明
 
-### 方法 2: 使用 Supabase Dashboard
+**Cloudflare Pages 免费额度**：
+- ✅ 无限站点
+- ✅ 无限请求
+- ✅ 无限带宽
+- ✅ 500 次构建/月
+- ✅ 自定义域名
 
-1. 登录 Supabase Dashboard
-2. 进入项目 `ekgbhbvbnxgqtnhjhqag`
-3. 进入 Edge Functions
-4. 点击 "New Function"
-5. 手动创建 `submit`、`records`、`cleanup` 三个函数
-6. 复制对应文件内容到 Dashboard
-
-## 功能说明
-
-### 首页 (/)
-- HERO 页面：莲花背景，浅金色文案
-- 亡者名单：49 天内往生者名单
-- 堕胎婴灵名单：49 天内堕胎婴灵名单
-- 旁生名单：49 天内旁生众生名单
-- 回向：往生愿文和愿生净土文
-
-### 填写名单 (/submit.html)
-- 分步表单：日期 → 分类 → 姓名
-- 智能姓名清理：自动去除无效字样
-- 去重验证：同一分类同一姓名自动去重
-- 提交成功后显示"查看名单"和"继续填写"按钮
-
-### 数据逻辑
-- 展示 49 天内的记录
-- 按往生日期降序排序
-- 同一分类同一姓名自动去重
-- 每月 1 日自动清理 90 天前的数据
-
-## 技术栈
-
-- **前端**: HTML5 + CSS3 + Vanilla JavaScript
-- **后端**: Supabase Edge Functions (Deno)
-- **数据库**: Supabase PostgreSQL
-- **部署**: Cloudflare Pages (静态站点)
-
-## 本地预览
-
-```bash
-cd /workspace/projects/public
-python3 -m http.server 5000
-```
-
-然后访问 http://localhost:5000
-
-## 联系方式
-
-如有问题，请联系项目管理员。
+对于你的项目，免费额度完全够用。

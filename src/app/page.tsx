@@ -299,11 +299,7 @@ export default function Home() {
 
   const fetchData = useCallback(async () => {
     try {
-      const res = await fetch('https://ekgbhbvbnxgqtnhjhqag.supabase.co/functions/v1/records', {
-        headers: {
-          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVrZ2JoYnZibnhncXRuaGpocWFnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzOTg0OTQsImV4cCI6MjEwMTk3NDQ5NH0.0ddEEOIE7sFkWVnM6LhrK-jESoTPQJLXtRu1AW01IGw'
-        }
-      });
+      const res = await fetch('/api/records');
       if (res.ok) {
         const json: SiteData = await res.json();
         setData(json);
