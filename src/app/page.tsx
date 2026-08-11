@@ -97,7 +97,10 @@ function HeroSection() {
         style={{ backgroundImage: 'url(/hero-lotus.jpeg)' }}
       />
       {/* 轻柔暖色遮罩 - 保持明亮有希望感 */}
-      <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-white/20 to-[#faf8f5]/60" />
+      <div className="absolute inset-0 bg-gradient-to-b from-white/40 via-white/20 to-[#faf8f5]/80" />
+
+      {/* 底部渐变过渡层 - 与亡者页面宣纸色背景无缝衔接 */}
+      <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-b from-transparent to-[#faf8f5]" />
 
       {/* 内容 */}
       <div className="relative z-10 mx-auto max-w-3xl px-6 py-24 text-center">
