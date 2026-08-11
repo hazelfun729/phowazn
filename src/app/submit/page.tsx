@@ -272,17 +272,7 @@ export default function SubmitPage() {
                   <p className="text-[#6b6560] text-xs mt-2">{name.length}/12</p>
                 </div>
 
-                {/* 已填信息预览 */}
-                <div className="pt-4 border-t border-[#e8e4df]">
-                  <p className="text-[#6b6560] text-sm mb-2">已填信息：</p>
-                  <div className="space-y-1 text-sm">
-                    <p className="text-[#2c2c2c]">往生日期：{deathDate}</p>
-                    <p className="text-[#2c2c2c]">
-                      分类：{category === 'deceased' ? '亡者' : category === 'infants' ? '堕胎婴灵' : '旁生'}
-                    </p>
-                  </div>
-                </div>
-              </div>
+            </div>
             )}
 
             {/* 错误提示 */}

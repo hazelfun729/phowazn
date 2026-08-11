@@ -28,10 +28,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 验证日期不能是未来
+    // 验证日期不能是未来（使用本地时区比较）
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const deathDate = new Date(death_date);
+    // 将日期字符串解析为本地时间（避免时区问题）
+    const [year, month, day] = death_date.split('-').map(Number);
+    const deathDate = new Date(year, month - 1, day);
     if (deathDate > today) {
       return NextResponse.json(
         { error: '往生日期不能是未来时间' },
