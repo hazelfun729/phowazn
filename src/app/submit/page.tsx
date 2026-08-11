@@ -28,40 +28,6 @@ export default function SubmitPage() {
   // 获取今天的日期（用于日期选择器的最大值）
   const today = new Date().toISOString().split('T')[0];
 
-  // 下载最新名单
-  const handleDownload = async () => {
-    try {
-      const response = await fetch('/api/records');
-      const data: RecordsData = await response.json();
-
-      // 生成 CSV 内容
-      const lines: string[] = ['分类，姓名，往生日期'];
-
-      data.deceased.forEach((r) => {
-        lines.push(`亡者，${r.name},${r.date}`);
-      });
-      data.infants.forEach((r) => {
-        lines.push(`堕胎婴灵，${r.name},${r.date}`);
-      });
-      data.animals.forEach((r) => {
-        lines.push(`旁生，${r.name},${r.date}`);
-      });
-
-      // 添加 BOM 以支持 Excel 正确显示中文
-      const bom = '\uFEFF';
-      const csvContent = bom + lines.join('\n');
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `助念名单_${today}.csv`;
-      link.click();
-      URL.revokeObjectURL(url);
-    } catch {
-      alert('下载失败，请稍后重试');
-    }
-  };
-
   const handleNext = () => {
     setError('');
     if (step === 1) {
@@ -194,15 +160,6 @@ export default function SubmitPage() {
             <Link href="/" className="text-sm text-[#6b6560] hover:text-[#2c2c2c] transition-colors">
               查看名单
             </Link>
-            <button
-              onClick={handleDownload}
-              className="text-sm text-[#6b6560] hover:text-[#8b6914] transition-colors flex items-center gap-1"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-              </svg>
-              下载名单
-            </button>
           </nav>
         </div>
       </header>

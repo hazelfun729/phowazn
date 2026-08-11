@@ -42,6 +42,39 @@ export default function AdminPage() {
     fetchCurrentData();
   }, [fetchCurrentData]);
 
+  const handleDownload = useCallback(async () => {
+    try {
+      const res = await fetch('/api/data');
+      if (!res.ok) throw new Error('获取数据失败');
+      const data = await res.json();
+
+      const rows: string[] = ['分类，姓名，往生日期'];
+
+      data.deceased?.forEach((item: { name: string; date: string }) => {
+        rows.push(`亡者，${item.name},${item.date}`);
+      });
+      data.infants?.forEach((item: { name: string; date: string }) => {
+        rows.push(`堕胎婴灵，${item.name},${item.date}`);
+      });
+      data.animals?.forEach((item: { name: string; date: string }) => {
+        rows.push(`旁生，${item.name},${item.date}`);
+      });
+
+      // 添加 BOM 让 Excel 正确显示中文
+      const csvContent = '\uFEFF' + rows.join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      const today = new Date().toISOString().split('T')[0];
+      link.download = `助念名单_${today}.csv`;
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      setMessage({ type: 'error', text: '下载失败，请重试' });
+    }
+  }, []);
+
   const handleUpload = useCallback(
     async (file: File) => {
       if (!file.name.endsWith('.csv')) {
@@ -219,6 +252,16 @@ export default function AdminPage() {
             <p className="mt-4 text-center font-serif text-xs text-[#a09a94]">
               最后更新：{formatTime(stats.updatedAt)}
             </p>
+
+            {/* 下载名单按钮 */}
+            <div className="mt-6 text-center">
+              <button
+                onClick={handleDownload}
+                className="font-serif text-sm text-[#8b6914] underline decoration-[#e8e4df] underline-offset-4 transition-colors hover:text-[#2c2c2c]"
+              >
+                下载最新名单
+              </button>
+            </div>
           </div>
         )}
 
