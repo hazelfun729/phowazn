@@ -299,13 +299,7 @@ export default function Home() {
 
   const fetchData = useCallback(async () => {
     try {
-      const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ekgbhbvbnxgqtnhjhqag.supabase.co';
-      const res = await fetch(`${SUPABASE_URL}/functions/v1/records`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''}`,
-        },
-      });
+      const res = await fetch('/api/records');
       if (res.ok) {
         const json: SiteData = await res.json();
         setData(json);

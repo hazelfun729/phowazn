@@ -21,11 +21,7 @@ export default function AdminPage() {
 
   const fetchCurrentData = useCallback(async () => {
     try {
-      const res = await fetch('https://ekgbhbvbnxgqtnhjhqag.supabase.co/functions/v1/records', {
-        headers: {
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
-        },
-      });
+      const res = await fetch('/api/data');
       if (res.ok) {
         const data = await res.json();
         if (data.updatedAt) {
@@ -60,11 +56,8 @@ export default function AdminPage() {
         const formData = new FormData();
         formData.append('file', file);
 
-        const res = await fetch('https://ekgbhbvbnxgqtnhjhqag.supabase.co/functions/v1/upload', {
+        const res = await fetch('/api/upload', {
           method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`,
-          },
           body: formData,
         });
 
