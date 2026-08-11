@@ -69,14 +69,8 @@ function Nav() {
           PW影院助念名单
         </a>
         <div className="flex gap-6 font-serif text-sm tracking-wide text-[#6b6560]">
-          <a href="#deceased" className="transition-colors hover:text-[#2c2c2c]">
-            亡者
-          </a>
-          <a href="#infants" className="transition-colors hover:text-[#2c2c2c]">
-            堕胎婴灵
-          </a>
-          <a href="#animals" className="transition-colors hover:text-[#2c2c2c]">
-            旁生
+          <a href="/submit" className="transition-colors hover:text-[#2c2c2c]">
+            填写名单
           </a>
           <a
             href="#conclusion"
@@ -305,7 +299,7 @@ export default function Home() {
 
   const fetchData = useCallback(async () => {
     try {
-      const res = await fetch('/api/data');
+      const res = await fetch('/api/records');
       if (res.ok) {
         const json: SiteData = await res.json();
         setData(json);
