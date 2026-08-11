@@ -1,296 +1,539 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Papa from 'papaparse';
 
-interface UploadStats {
-  deceased: number;
-  infants: number;
-  animals: number;
-  updatedAt: string;
+interface Record {
+  id: number;
+  name: string;
+  category: string;
+  death_date: string;
+  created_at: string;
 }
 
 export default function AdminPage() {
-  const [uploading, setUploading] = useState(false);
-  const [message, setMessage] = useState<{
-    type: 'success' | 'error';
-    text: string;
-  } | null>(null);
-  const [stats, setStats] = useState<UploadStats | null>(null);
-  const [dragOver, setDragOver] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadResult, setUploadResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [records, setRecords] = useState<Record[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterCategory, setFilterCategory] = useState('all');
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [editingRecord, setEditingRecord] = useState<Record | null>(null);
+  const [isDownloading, setIsDownloading] = useState(false);
 
-  const fetchCurrentData = useCallback(async () => {
+  // 获取所有记录
+  const fetchRecords = async () => {
     try {
-      const res = await fetch('/api/data');
-      if (res.ok) {
-        const data = await res.json();
-        if (data.updatedAt) {
-          setStats({
-            deceased: data.deceased?.length ?? 0,
-            infants: data.infants?.length ?? 0,
-            animals: data.animals?.length ?? 0,
-            updatedAt: data.updatedAt,
-          });
-        }
+      const res = await fetch('/api/records/all');
+      const data = await res.json();
+      if (data.success) {
+        setRecords(data.data);
       }
-    } catch {
-      // ignore
+    } catch (error) {
+      console.error('获取记录失败:', error);
+    } finally {
+      setLoading(false);
     }
-  }, []);
+  };
 
   useEffect(() => {
-    fetchCurrentData();
-  }, [fetchCurrentData]);
+    fetchRecords();
+  }, []);
 
-  const handleDownload = useCallback(async () => {
+  // 文件上传处理
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.name.endsWith('.csv')) {
+      setUploadResult({ success: false, message: '仅支持 CSV 格式文件' });
+      return;
+    }
+
+    setIsUploading(true);
+    setUploadResult(null);
+
     try {
-      const res = await fetch('/api/data');
-      if (!res.ok) throw new Error('获取数据失败');
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
       const data = await res.json();
 
+      if (data.success) {
+        setUploadResult({ success: true, message: data.message });
+        await fetchRecords(); // 刷新列表
+      } else {
+        setUploadResult({ success: false, message: data.error });
+      }
+    } catch (error) {
+      setUploadResult({ success: false, message: '上传失败，请重试' });
+    } finally {
+      setIsUploading(false);
+      if (event.target) event.target.value = '';
+    }
+  };
+
+  // 下载最新名单
+  const handleDownload = async () => {
+    try {
+      setIsDownloading(true);
+      const res = await fetch('/api/records/all');
+      const data = await res.json();
+
+      if (!data.success) {
+        alert('获取数据失败');
+        return;
+      }
+
       // 生成与原始问卷格式一致的 CSV
-      const rows: string[] = [
-        '编号，开始答题时间，结束答题时间，答题时长，1.往生日期，2.49 日内回向名单，3.亡者姓名，4.堕胎婴灵姓名（若无名字，填写：父母之一姓名+"堕胎婴灵"），5.旁生姓名（请填写具体昵称，勿填写如虫、鸟、猫、狗等泛称。）',
-      ];
+      const csvRows: string[] = [];
+      // 表头
+      csvRows.push('编号，开始答题时间，结束答题时间，答题时长，1.往生日期，2.49 日内回向名单，3.亡者姓名，4.堕胎婴灵姓名（若无名字，填写：父母之一姓名+"堕胎婴灵"），5.旁生姓名（请填写具体昵称，勿填写如虫、鸟、猫、狗等泛称。）');
 
-      let index = 1;
       const now = new Date().toISOString();
+      data.data.forEach((record: Record, index: number) => {
+        const categoryMap: { [key: string]: string } = {
+          deceased: 'A.亡者',
+          infants: 'B.堕胎婴灵',
+          animals: 'C.旁生',
+        };
+        const categoryText = categoryMap[record.category] || '';
+        const deceasedName = record.category === 'deceased' ? record.name : '';
+        const infantName = record.category === 'infants' ? record.name : '';
+        const animalName = record.category === 'animals' ? record.name : '';
 
-      data.deceased?.forEach((item: { name: string; date: string }) => {
-        rows.push(
-          `${index},${now},${now},,${item.date},A.亡者，${item.name},,`
+        csvRows.push(
+          `${index + 1},${now},${now},,${record.death_date},${categoryText},${deceasedName},${infantName},${animalName}`
         );
-        index++;
       });
 
-      data.infants?.forEach((item: { name: string; date: string }) => {
-        rows.push(
-          `${index},${now},${now},,${item.date},B.堕胎婴灵,,${item.name},`
-        );
-        index++;
-      });
-
-      data.animals?.forEach((item: { name: string; date: string }) => {
-        rows.push(
-          `${index},${now},${now},,${item.date},C.旁生,,,${item.name}`
-        );
-        index++;
-      });
-
-      // 添加 BOM 让 Excel 正确显示中文
-      const csvContent = '\uFEFF' + rows.join('\n');
+      // 添加 BOM 确保 Excel 正确显示中文
+      const csvContent = '\uFEFF' + csvRows.join('\n');
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      const today = new Date().toISOString().split('T')[0];
-      link.download = `助念名单_${today}.csv`;
+      link.download = `助念名单_${new Date().toISOString().split('T')[0]}.csv`;
       link.click();
       URL.revokeObjectURL(url);
-    } catch {
-      setMessage({ type: 'error', text: '下载失败，请重试' });
+    } catch (error) {
+      console.error('下载失败:', error);
+      alert('下载失败，请重试');
+    } finally {
+      setIsDownloading(false);
     }
-  }, []);
+  };
 
-  const handleUpload = useCallback(
-    async (file: File) => {
-      if (!file.name.endsWith('.csv')) {
-        setMessage({ type: 'error', text: '仅支持CSV格式文件' });
-        return;
+  // 删除单条记录
+  const handleDelete = async (id: number) => {
+    if (!confirm('确定要删除这条记录吗？')) return;
+
+    try {
+      const res = await fetch(`/api/records/${id}`, {
+        method: 'DELETE',
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        await fetchRecords(); // 刷新列表
+      } else {
+        alert('删除失败：' + data.error);
       }
+    } catch (error) {
+      console.error('删除失败:', error);
+      alert('删除失败，请重试');
+    }
+  };
 
-      setUploading(true);
-      setMessage(null);
+  // 批量删除
+  const handleBatchDelete = async () => {
+    if (selectedIds.length === 0) {
+      alert('请先选择要删除的记录');
+      return;
+    }
 
-      try {
-        const formData = new FormData();
-        formData.append('file', file);
+    if (!confirm(`确定要删除选中的 ${selectedIds.length} 条记录吗？`)) return;
 
-        const res = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
-        });
+    try {
+      const res = await fetch('/api/records/batch', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: selectedIds }),
+      });
 
-        const result = await res.json();
+      const data = await res.json();
 
-        if (res.ok && result.success) {
-          setMessage({ type: 'success', text: result.message });
-          setStats(result.stats);
-        } else {
-          setMessage({
-            type: 'error',
-            text: result.error || '上传失败',
-          });
-        }
-      } catch {
-        setMessage({ type: 'error', text: '网络错误，请重试' });
-      } finally {
-        setUploading(false);
+      if (data.success) {
+        setSelectedIds([]);
+        await fetchRecords();
+      } else {
+        alert('批量删除失败：' + data.error);
       }
-    },
-    []
-  );
+    } catch (error) {
+      console.error('批量删除失败:', error);
+      alert('批量删除失败，请重试');
+    }
+  };
 
-  const handleFileChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (file) handleUpload(file);
-    },
-    [handleUpload]
-  );
+  // 批量修改分类
+  const handleBatchCategoryChange = async (newCategory: string) => {
+    if (selectedIds.length === 0) {
+      alert('请先选择要修改的记录');
+      return;
+    }
 
-  const handleDrop = useCallback(
-    (e: React.DragEvent<HTMLDivElement>) => {
-      e.preventDefault();
-      setDragOver(false);
-      const file = e.dataTransfer.files?.[0];
-      if (file) handleUpload(file);
-    },
-    [handleUpload]
-  );
+    try {
+      const res = await fetch('/api/records/batch', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: selectedIds, category: newCategory }),
+      });
 
-  const handleDragOver = useCallback(
-    (e: React.DragEvent<HTMLDivElement>) => {
-      e.preventDefault();
-      setDragOver(true);
-    },
-    []
-  );
+      const data = await res.json();
 
-  const handleDragLeave = useCallback(() => {
-    setDragOver(false);
-  }, []);
+      if (data.success) {
+        setSelectedIds([]);
+        await fetchRecords();
+      } else {
+        alert('批量修改失败：' + data.error);
+      }
+    } catch (error) {
+      console.error('批量修改失败:', error);
+      alert('批量修改失败，请重试');
+    }
+  };
 
-  const formatTime = (iso: string) => {
-    const d = new Date(iso);
-    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+  // 保存编辑
+  const handleSaveEdit = async () => {
+    if (!editingRecord) return;
+
+    try {
+      const res = await fetch(`/api/records/${editingRecord.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editingRecord),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setEditingRecord(null);
+        await fetchRecords();
+      } else {
+        alert('保存失败：' + data.error);
+      }
+    } catch (error) {
+      console.error('保存失败:', error);
+      alert('保存失败，请重试');
+    }
+  };
+
+  // 全选/取消全选
+  const handleSelectAll = () => {
+    if (selectedIds.length === filteredRecords.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(filteredRecords.map(r => r.id));
+    }
+  };
+
+  // 切换单个选择
+  const handleToggleSelect = (id: number) => {
+    setSelectedIds(prev =>
+      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    );
+  };
+
+  // 过滤记录
+  const filteredRecords = records.filter(record => {
+    const matchSearch = record.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchCategory = filterCategory === 'all' || record.category === filterCategory;
+    return matchSearch && matchCategory;
+  });
+
+  const categoryLabels: { [key: string]: string } = {
+    deceased: '亡者',
+    infants: '堕胎婴灵',
+    animals: '旁生',
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center px-6 py-16">
-      <div className="w-full max-w-lg">
-        <h1 className="section-title mb-4 text-center font-serif text-2xl font-semibold tracking-[0.15em] text-[#2c2c2c]">
-          数据管理
-        </h1>
-        <p className="mb-10 text-center font-serif text-sm text-[#6b6560]">
-          上传CSV数据文件，系统将自动解析并更新页面数据
-        </p>
-
-        {/* 上传区域 */}
-        <div
-          onDrop={handleDrop}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          className={`rounded-sm border-2 border-dashed p-10 text-center transition-colors ${
-            dragOver
-              ? 'border-[#8b6914] bg-[#f5f2ed]'
-              : 'border-[#e8e4df] hover:border-[#d4cfc8]'
-          }`}
-        >
-          <div className="mb-4 text-[#6b6560]">
-            <svg
-              width="40"
-              height="40"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              className="mx-auto"
-            >
-              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
-              <polyline points="17 8 12 3 7 8" />
-              <line x1="12" y1="3" x2="12" y2="15" />
-            </svg>
-          </div>
-          <p className="mb-2 font-serif text-sm text-[#6b6560]">
-            {uploading ? '正在上传...' : '拖拽CSV文件到此处，或点击选择文件'}
-          </p>
-          <input
-            type="file"
-            accept=".csv"
-            onChange={handleFileChange}
-            disabled={uploading}
-            className="hidden"
-            id="csv-upload"
-          />
-          <label
-            htmlFor="csv-upload"
-            className="inline-block cursor-pointer border border-[#2c2c2c] px-6 py-2 font-serif text-sm tracking-wide text-[#2c2c2c] transition-colors hover:bg-[#2c2c2c] hover:text-[#faf8f5]"
-          >
-            {uploading ? '上传中...' : '选择文件'}
-          </label>
+    <div className="min-h-screen py-12 px-4">
+      <div className="max-w-4xl mx-auto">
+        {/* 标题 */}
+        <div className="text-center mb-12">
+          <h1 className="text-3xl font-bold mb-4" style={{ fontFamily: 'STZhongsong, SimSun, serif', letterSpacing: '0.1em' }}>
+            数据管理
+          </h1>
+          <div className="w-16 h-0.5 mx-auto" style={{ backgroundColor: '#8b6914' }}></div>
         </div>
-
-        {/* 消息提示 */}
-        {message && (
-          <div
-            className={`mt-6 p-4 text-center font-serif text-sm ${
-              message.type === 'success'
-                ? 'bg-[#f0f5e8] text-[#4a6b2a]'
-                : 'bg-[#f5e8e8] text-[#8b3a3a]'
-            }`}
-          >
-            {message.text}
-          </div>
-        )}
-
-        {/* 当前数据统计 */}
-        {stats && (
-          <div className="mt-10 border border-[#e8e4df] p-6">
-            <h3 className="mb-4 text-center font-serif text-sm tracking-widest text-[#6b6560]">
-              当前数据概况
-            </h3>
-            <div className="grid grid-cols-3 gap-4 text-center">
-              <div>
-                <p className="font-serif text-2xl text-[#2c2c2c]">
-                  {stats.deceased}
-                </p>
-                <p className="mt-1 font-serif text-xs text-[#6b6560]">
-                  亡者
-                </p>
-              </div>
-              <div>
-                <p className="font-serif text-2xl text-[#2c2c2c]">
-                  {stats.infants}
-                </p>
-                <p className="mt-1 font-serif text-xs text-[#6b6560]">
-                  堕胎婴灵
-                </p>
-              </div>
-              <div>
-                <p className="font-serif text-2xl text-[#2c2c2c]">
-                  {stats.animals}
-                </p>
-                <p className="mt-1 font-serif text-xs text-[#6b6560]">
-                  旁生
-                </p>
-              </div>
-            </div>
-            <p className="mt-4 text-center font-serif text-xs text-[#a09a94]">
-              最后更新：{formatTime(stats.updatedAt)}
-            </p>
-
-            {/* 下载名单按钮 */}
-            <div className="mt-6 text-center">
-              <button
-                onClick={handleDownload}
-                className="font-serif text-sm text-[#8b6914] underline decoration-[#e8e4df] underline-offset-4 transition-colors hover:text-[#2c2c2c]"
-              >
-                下载最新名单
-              </button>
-            </div>
-          </div>
-        )}
 
         {/* 返回链接 */}
-        <div className="mt-10 text-center">
-          <Link
-            href="/"
-            className="font-serif text-sm text-[#6b6560] underline decoration-[#e8e4df] underline-offset-4 transition-colors hover:text-[#2c2c2c]"
-          >
-            返回前台页面
+        <div className="mb-8">
+          <Link href="/" className="text-sm hover:opacity-80 transition-opacity" style={{ color: '#6b6560' }}>
+            ← 返回名单页面
           </Link>
         </div>
+
+        {/* 上传区域 */}
+        <div className="mb-12 p-8 border border-dashed rounded-lg" style={{ borderColor: '#e8e4df', backgroundColor: '#faf8f5' }}>
+          <h2 className="text-xl font-semibold mb-4" style={{ fontFamily: 'STZhongsong, SimSun, serif' }}>
+            上传数据
+          </h2>
+          <p className="text-sm mb-6" style={{ color: '#6b6560' }}>
+            上传 CSV 文件，自动解析并分类（A.亡者 / B.堕胎婴灵 / C.旁生）
+          </p>
+
+          <label className="block">
+            <span className="inline-block px-6 py-3 text-sm font-medium rounded-lg cursor-pointer transition-all hover:opacity-80"
+              style={{ backgroundColor: '#8b6914', color: '#faf8f5' }}>
+              {isUploading ? '上传中...' : '选择 CSV 文件'}
+            </span>
+            <input
+              type="file"
+              accept=".csv"
+              onChange={handleFileUpload}
+              disabled={isUploading}
+              className="hidden"
+            />
+          </label>
+
+          {uploadResult && (
+            <div className={`mt-4 p-4 rounded-lg text-sm ${uploadResult.success ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'}`}>
+              {uploadResult.message}
+            </div>
+          )}
+        </div>
+
+        {/* 下载按钮 */}
+        <div className="mb-8">
+          <button
+            onClick={handleDownload}
+            disabled={isDownloading}
+            className="px-6 py-3 text-sm font-medium rounded-lg transition-all hover:opacity-80 disabled:opacity-50"
+            style={{ backgroundColor: '#8b6914', color: '#faf8f5' }}
+          >
+            {isDownloading ? '下载中...' : '下载最新名单'}
+          </button>
+        </div>
+
+        {/* 记录管理区域 */}
+        <div className="border rounded-lg p-8" style={{ borderColor: '#e8e4df', backgroundColor: '#faf8f5' }}>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-semibold" style={{ fontFamily: 'STZhongsong, SimSun, serif' }}>
+              记录管理
+            </h2>
+            <span className="text-sm" style={{ color: '#6b6560' }}>
+              共 {filteredRecords.length} 条记录
+            </span>
+          </div>
+
+          {/* 搜索和筛选 */}
+          <div className="flex gap-4 mb-6">
+            <input
+              type="text"
+              placeholder="搜索姓名..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="flex-1 px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2"
+              style={{ borderColor: '#e8e4df', backgroundColor: '#fff' }}
+            />
+            <select
+              value={filterCategory}
+              onChange={(e) => setFilterCategory(e.target.value)}
+              className="px-4 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2"
+              style={{ borderColor: '#e8e4df', backgroundColor: '#fff' }}
+            >
+              <option value="all">全部分类</option>
+              <option value="deceased">亡者</option>
+              <option value="infants">堕胎婴灵</option>
+              <option value="animals">旁生</option>
+            </select>
+          </div>
+
+          {/* 批量操作按钮 */}
+          {selectedIds.length > 0 && (
+            <div className="flex gap-2 mb-4 p-4 rounded-lg" style={{ backgroundColor: '#f5f2ed' }}>
+              <span className="text-sm" style={{ color: '#6b6560' }}>
+                已选择 {selectedIds.length} 条
+              </span>
+              <button
+                onClick={handleBatchDelete}
+                className="px-3 py-1 text-xs rounded hover:opacity-80"
+                style={{ backgroundColor: '#dc2626', color: '#fff' }}
+              >
+                批量删除
+              </button>
+              <button
+                onClick={() => handleBatchCategoryChange('deceased')}
+                className="px-3 py-1 text-xs rounded hover:opacity-80"
+                style={{ backgroundColor: '#8b6914', color: '#fff' }}
+              >
+                改为亡者
+              </button>
+              <button
+                onClick={() => handleBatchCategoryChange('infants')}
+                className="px-3 py-1 text-xs rounded hover:opacity-80"
+                style={{ backgroundColor: '#8b6914', color: '#fff' }}
+              >
+                改为堕胎婴灵
+              </button>
+              <button
+                onClick={() => handleBatchCategoryChange('animals')}
+                className="px-3 py-1 text-xs rounded hover:opacity-80"
+                style={{ backgroundColor: '#8b6914', color: '#fff' }}
+              >
+                改为旁生
+              </button>
+            </div>
+          )}
+
+          {/* 记录列表 */}
+          {loading ? (
+            <div className="text-center py-12" style={{ color: '#6b6560' }}>
+              加载中...
+            </div>
+          ) : filteredRecords.length === 0 ? (
+            <div className="text-center py-12" style={{ color: '#6b6560' }}>
+              暂无记录
+            </div>
+          ) : (
+            <div className="space-y-2 max-h-96 overflow-y-auto">
+              {/* 表头 */}
+              <div className="flex items-center gap-2 px-4 py-2 font-medium text-sm" style={{ backgroundColor: '#f5f2ed' }}>
+                <input
+                  type="checkbox"
+                  checked={selectedIds.length === filteredRecords.length && filteredRecords.length > 0}
+                  onChange={handleSelectAll}
+                  className="w-4 h-4"
+                />
+                <span className="flex-1">姓名</span>
+                <span className="w-24">分类</span>
+                <span className="w-28">往生日期</span>
+                <span className="w-24">操作</span>
+              </div>
+
+              {/* 记录行 */}
+              {filteredRecords.map(record => (
+                <div
+                  key={record.id}
+                  className="flex items-center gap-2 px-4 py-3 border-b hover:bg-opacity-50 transition-colors"
+                  style={{ borderColor: '#e8e4df' }}
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.includes(record.id)}
+                    onChange={() => handleToggleSelect(record.id)}
+                    className="w-4 h-4"
+                  />
+                  <span className="flex-1 text-sm">{record.name}</span>
+                  <span className="w-24 text-sm" style={{ color: '#6b6560' }}>
+                    {categoryLabels[record.category]}
+                  </span>
+                  <span className="w-28 text-sm" style={{ color: '#6b6560' }}>
+                    {record.death_date}
+                  </span>
+                  <div className="w-24 flex gap-2">
+                    <button
+                      onClick={() => setEditingRecord(record)}
+                      className="px-2 py-1 text-xs rounded hover:opacity-80"
+                      style={{ backgroundColor: '#8b6914', color: '#fff' }}
+                    >
+                      编辑
+                    </button>
+                    <button
+                      onClick={() => handleDelete(record.id)}
+                      className="px-2 py-1 text-xs rounded hover:opacity-80"
+                      style={{ backgroundColor: '#dc2626', color: '#fff' }}
+                    >
+                      删除
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* 编辑对话框 */}
+        {editingRecord && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-lg p-8 max-w-md w-full">
+              <h3 className="text-lg font-semibold mb-6" style={{ fontFamily: 'STZhongsong, SimSun, serif' }}>
+                编辑记录
+              </h3>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{ color: '#6b6560' }}>
+                    姓名
+                  </label>
+                  <input
+                    type="text"
+                    value={editingRecord.name}
+                    onChange={(e) => setEditingRecord({ ...editingRecord, name: e.target.value })}
+                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2"
+                    style={{ borderColor: '#e8e4df' }}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{ color: '#6b6560' }}>
+                    分类
+                  </label>
+                  <select
+                    value={editingRecord.category}
+                    onChange={(e) => setEditingRecord({ ...editingRecord, category: e.target.value })}
+                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2"
+                    style={{ borderColor: '#e8e4df' }}
+                  >
+                    <option value="deceased">亡者</option>
+                    <option value="infants">堕胎婴灵</option>
+                    <option value="animals">旁生</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2" style={{ color: '#6b6560' }}>
+                    往生日期
+                  </label>
+                  <input
+                    type="date"
+                    value={editingRecord.death_date}
+                    onChange={(e) => setEditingRecord({ ...editingRecord, death_date: e.target.value })}
+                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2"
+                    style={{ borderColor: '#e8e4df' }}
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-4 mt-8">
+                <button
+                  onClick={() => setEditingRecord(null)}
+                  className="flex-1 px-4 py-2 text-sm rounded-lg border hover:opacity-80"
+                  style={{ borderColor: '#e8e4df', color: '#6b6560' }}
+                >
+                  取消
+                </button>
+                <button
+                  onClick={handleSaveEdit}
+                  className="flex-1 px-4 py-2 text-sm font-medium rounded-lg hover:opacity-80"
+                  style={{ backgroundColor: '#8b6914', color: '#faf8f5' }}
+                >
+                  保存
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
