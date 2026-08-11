@@ -1,6 +1,7 @@
 {
-  "buildCommand": "pnpm next build",
-  "outputDirectory": ".next",
-  "installCommand": "pnpm install",
-  "environmentVariables": {}
+  "build": {
+    "command": "echo 'Static site - no build required'",
+    "output": "public"
+  },
+  "envVars": {}
 }

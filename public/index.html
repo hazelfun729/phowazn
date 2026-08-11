@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PW 影院助念名单</title>
+  <link rel="stylesheet" href="/styles.css">
+  <link href="https://fonts.googleapis.cn/css2?family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="/" class="nav-logo">PW 影院助念名单</a>
+      <div class="nav-links">
+        <a href="/submit.html" class="nav-link">填写名单</a>
+      </div>
+    </div>
+  </nav>
+
+  <section class="hero" id="hero">
+    <div class="hero-bg">
+      <img src="/hero-lotus.jpeg" alt="莲花背景" class="hero-image">
+      <div class="hero-overlay"></div>
+    </div>
+    <div class="hero-content">
+      <h1 class="hero-title">PW 影院助念名单</h1>
+      <div class="hero-divider"></div>
+      <p class="hero-subtitle">共修功德 · 回向众生</p>
+      <div class="hero-quote">
+        <p>人去世的时候会非常可怜，就像中阴窍诀所描述的：</p>
+        <p>前有阎罗狱卒牵引，后有业风吹动。</p>
+        <p>虽然万般不情愿，却不得不舍弃今生的一切，</p>
+        <p>踏上通往来世的中阴长道，独自面对各种恐怖的景象，</p>
+        <p>在这个时候，亡者最需要亲友的帮助</p>
+        <p class="hero-call">让我们一起发慈悲之心，帮助这些独自漂泊在中阴的无助亡者们！</p>
+      </div>
+      <div class="scroll-hint">
+        <span>向下滚动</span>
+        <div class="scroll-arrow">↓</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="deceased">
+    <div class="section-container">
+      <h2 class="section-title">亡者</h2>
+      <div class="section-divider"></div>
+      <p class="section-subtitle">四十九日内往生者名单</p>
+      <div class="data-content" id="deceased-list">
+        <p class="loading">加载中...</p>
+      </div>
+      <p class="data-count" id="deceased-count"></p>
+    </div>
+  </section>
+
+  <section class="section" id="infants">
+    <div class="section-container">
+      <h2 class="section-title">堕胎婴灵</h2>
+      <div class="section-divider"></div>
+      <p class="section-subtitle">四十九日内堕胎婴灵名单</p>
+      <div class="data-content" id="infants-list">
+        <p class="loading">加载中...</p>
+      </div>
+      <p class="data-count" id="infants-count"></p>
+    </div>
+  </section>
+
+  <section class="section" id="animals">
+    <div class="section-container">
+      <h2 class="section-title">旁生</h2>
+      <div class="section-divider"></div>
+      <p class="section-subtitle">四十九日内旁生众生名单</p>
+      <div class="data-content" id="animals-list">
+        <p class="loading">加载中...</p>
+      </div>
+      <p class="data-count" id="animals-count"></p>
+    </div>
+  </section>
+
+  <section class="section" id="dedication">
+    <div class="section-container">
+      <h2 class="section-title">回向</h2>
+      <div class="section-divider"></div>
+      <div class="dedication-content">
+        <div class="dedication-item">
+          <h3 class="dedication-title">往生愿文</h3>
+          <div class="dedication-text">
+            <p>以上众生为主的一切亡者，</p>
+            <p>愿业障消除，福慧增长，</p>
+            <p>蒙佛光摄受，慈悲接引，</p>
+            <p>往生西方极乐世界，</p>
+            <p>早日乘愿再来，广度众生。</p>
+          </div>
+        </div>
+        <div class="dedication-item">
+          <h3 class="dedication-title">愿生净土文</h3>
+          <div class="dedication-text">
+            <p>愿生西方净土中，</p>
+            <p>九品莲花为父母，</p>
+            <p>华开见佛悟无生，</p>
+            <p>不退菩萨为伴侣。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-container">
+      <p class="footer-text">© 2026 PW 影院助念名单 · 所有数据仅供内部回向使用</p>
+      <p class="footer-update" id="footer-update"></p>
+      <p class="footer-privacy">隐私声明：所有数据仅用于共修回向，不会用于其他用途</p>
+    </div>
+  </footer>
+
+  <script src="/script.js"></script>
+</body>
+</html>

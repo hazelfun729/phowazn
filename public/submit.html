@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>填写名单 - PW 影院助念名单</title>
+  <link rel="stylesheet" href="/styles.css">
+  <link href="https://fonts.googleapis.cn/css2?family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="/" class="nav-logo">PW 影院助念名单</a>
+      <div class="nav-links">
+        <a href="/submit.html" class="nav-link active">填写名单</a>
+      </div>
+    </div>
+  </nav>
+
+  <section class="submit-page">
+    <div class="submit-container">
+      <h1 class="submit-title">PW 影院助念名单</h1>
+      <p class="submit-hint">名单为<strong>49 日内往生</strong>之 ZN，<strong>请勿重复填写</strong>，名单将保留 7 周持续回向。</p>
+
+      <form id="submit-form" class="submit-form">
+        <div class="form-step" id="step-1">
+          <label class="form-label">往生日期</label>
+          <input type="date" id="death-date" class="form-input" required>
+          <p class="form-error" id="error-date"></p>
+        </div>
+
+        <div class="form-step" id="step-2">
+          <label class="form-label">49 日内回向名单</label>
+          <div class="radio-group">
+            <label class="radio-item">
+              <input type="radio" name="category" value="deceased" required>
+              <span class="radio-label">亡者</span>
+            </label>
+            <label class="radio-item">
+              <input type="radio" name="category" value="infants">
+              <span class="radio-label">堕胎婴灵</span>
+            </label>
+            <label class="radio-item">
+              <input type="radio" name="category" value="animals">
+              <span class="radio-label">旁生</span>
+            </label>
+          </div>
+          <p class="form-error" id="error-category"></p>
+        </div>
+
+        <div class="form-step" id="step-3">
+          <label class="form-label" id="name-label">姓名</label>
+          <p class="form-tip">一次一位，请勿重复填写，名单将保留 7 周持续回向。</p>
+          <input type="text" id="name-input" class="form-input" maxlength="12" placeholder="请输入姓名" required>
+          <p class="form-error" id="error-name"></p>
+          <button type="submit" class="submit-btn">提交</button>
+        </div>
+      </form>
+
+      <div id="success-message" class="success-message" style="display: none;">
+        <div class="success-icon">✓</div>
+        <h2 class="success-title">提交成功</h2>
+        <p class="success-text">已为您记录，将持续回向 49 日</p>
+        <div class="success-actions">
+          <a href="/" class="btn-primary">查看名单</a>
+          <button onclick="resetForm()" class="btn-secondary">继续填写</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-container">
+      <p class="footer-text">© 2026 PW 影院助念名单 · 所有数据仅供内部回向使用</p>
+      <p class="footer-privacy">隐私声明：所有数据仅用于共修回向，不会用于其他用途</p>
+    </div>
+  </footer>
+
+  <script>
+    const SUPABASE_URL = 'https://ekgbhbvbnxgqtnhjhqag.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVrZ2JoYnZibnhncXRuaGpocWFnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYzOTg0OTQsImV4cCI6MjEwMTk3NDQ5NH0.0ddEEOIE7sFkWVnM6LhrK-jESoTPQJLXtRu1AW01IGw';
+
+    const dateInput = document.getElementById('death-date');
+    const categoryRadios = document.querySelectorAll('input[name="category"]');
+    const nameLabel = document.getElementById('name-label');
+    const nameInput = document.getElementById('name-input');
+    const form = document.getElementById('submit-form');
+    const successMessage = document.getElementById('success-message');
+
+    const categoryNames = {
+      'deceased': '亡者姓名',
+      'infants': '堕胎婴灵姓名',
+      'animals': '旁生姓名'
+    };
+
+    const categoryTips = {
+      'deceased': '一次一位，请勿重复填写，名单将保留 7 周持续回向。',
+      'infants': '若无名字，填写：父母之一姓名 + "堕胎婴灵"',
+      'animals': '请填写具体昵称，勿填写如虫、鸟、猫、狗等泛称。'
+    };
+
+    dateInput.max = new Date().toISOString().split('T')[0];
+
+    categoryRadios.forEach(radio => {
+      radio.addEventListener('change', function() {
+        const category = this.value;
+        nameLabel.textContent = categoryNames[category];
+        nameInput.placeholder = categoryTips[category];
+        document.querySelector('.form-tip').textContent = categoryTips[category];
+      });
+    });
+
+    function cleanName(name, category) {
+      let cleaned = name.trim();
+      cleaned = cleaned.replace(/[，。、；：！？""''【】《》\s]+/g, '');
+      cleaned = cleaned.replace(/亡者/g, '');
+      cleaned = cleaned.replace(/姓名/g, '');
+      if (category !== 'infants') {
+        cleaned = cleaned.replace(/旁生/g, '');
+      }
+      return cleaned;
+    }
+
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      document.querySelectorAll('.form-error').forEach(el => el.textContent = '');
+
+      const deathDate = dateInput.value;
+      const category = document.querySelector('input[name="category"]:checked')?.value;
+      const rawName = nameInput.value;
+
+      if (!deathDate) {
+        document.getElementById('error-date').textContent = '请选择往生日期';
+        return;
+      }
+
+      const today = new Date();
+      const selectedDate = new Date(deathDate + 'T00:00:00');
+      if (selectedDate > today) {
+        document.getElementById('error-date').textContent = '往生日期不能是未来时间';
+        return;
+      }
+
+      if (!category) {
+        document.getElementById('error-category').textContent = '请选择分类';
+        return;
+      }
+
+      const name = cleanName(rawName, category);
+      if (!name) {
+        document.getElementById('error-name').textContent = '请输入有效姓名';
+        return;
+      }
+
+      const submitBtn = form.querySelector('.submit-btn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = '提交中...';
+
+      try {
+        const response = await fetch(`${SUPABASE_URL}/functions/v1/submit`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+          },
+          body: JSON.stringify({
+            death_date: deathDate,
+            category: category,
+            name: name
+          })
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          form.style.display = 'none';
+          successMessage.style.display = 'block';
+        } else {
+          document.getElementById('error-name').textContent = result.error || '提交失败，请重试';
+        }
+      } catch (error) {
+        console.error('Submit error:', error);
+        document.getElementById('error-name').textContent = '网络错误，请重试';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '提交';
+      }
+    });
+
+    function resetForm() {
+      form.reset();
+      form.style.display = 'block';
+      successMessage.style.display = 'none';
+      document.querySelectorAll('.form-step').forEach(step => step.classList.remove('active'));
+      document.getElementById('step-1').classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    document.querySelectorAll('.form-step').forEach((step, index) => {
+      if (index === 0) step.classList.add('active');
+    });
+  </script>
+</body>
+</html>
