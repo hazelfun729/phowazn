@@ -140,7 +140,7 @@ export default function SubmitPage() {
               onClick={handleReset}
               className="block w-full py-3 px-6 border border-[#2c2c2c]/20 text-[#2c2c2c] rounded hover:bg-[#2c2c2c]/5 transition-colors font-serif"
             >
-              继续填写名单
+              再填一个名单
             </button>
           </div>
         </div>
