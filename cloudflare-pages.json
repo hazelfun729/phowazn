@@ -1,5 +1,5 @@
 {
-  "buildCommand": "pnpm install && pnpm next build",
+  "buildCommand": "pnpm next build",
   "outputDirectory": ".next",
   "installCommand": "pnpm install",
   "environmentVariables": {
