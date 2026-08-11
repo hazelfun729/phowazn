@@ -44,3 +44,6 @@ coverage/
 # Build artifacts
 tsconfig.tsbuildinfo
 build.log
+
+# Preview files
+.preview
