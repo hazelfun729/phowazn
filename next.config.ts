@@ -1,17 +1,11 @@
 import type { NextConfig } from 'next';
-import { withOpenNext } from '@opennextjs/cloudflare';
 
 const nextConfig: NextConfig = {
-  allowedDevOrigins: ['*.dev.coze.site'],
+  reactStrictMode: true,
+  output: 'export',
   images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '*',
-        pathname: '/**',
-      },
-    ],
+    unoptimized: true,
   },
 };
 
-export default withOpenNext(nextConfig);
+export default nextConfig;

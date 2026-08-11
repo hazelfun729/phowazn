@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "bash ./scripts/build.sh",
+    "build": "next build",
     "dev": "bash ./scripts/dev.sh",
     "preinstall": "npx only-allow pnpm",
     "lint": "eslint",
@@ -12,7 +12,7 @@
     "start": "bash ./scripts/start.sh",
     "ts-check": "tsc -p tsconfig.json",
     "validate": "pnpm dlx concurrently --group --names lint-tsc,lint-build,lint-style \"pnpm ts-check\" \"pnpm lint:build\" \"pnpm lint:style\"",
-    "build:cloudflare": "opennextjs-cloudflare build",
+    "build:cloudflare": "next build",
     "deploy:cloudflare": "wrangler pages deploy .vercel/output/static --project-name phowa"
   },
   "dependencies": {

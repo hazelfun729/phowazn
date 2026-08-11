@@ -54,9 +54,14 @@ export default function SubmitPage() {
 
     setSubmitting(true);
     try {
-      const response = await fetch('/api/submit', {
+      const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://ekgbhbvbnxgqtnhjhqag.supabase.co';
+      const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+      const response = await fetch(`${SUPABASE_URL}/functions/v1/submit`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+        },
         body: JSON.stringify({
           name: name.trim(),
           category,
