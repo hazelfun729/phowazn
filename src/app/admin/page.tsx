@@ -48,16 +48,33 @@ export default function AdminPage() {
       if (!res.ok) throw new Error('获取数据失败');
       const data = await res.json();
 
-      const rows: string[] = ['分类，姓名，往生日期'];
+      // 生成与原始问卷格式一致的 CSV
+      const rows: string[] = [
+        '编号，开始答题时间，结束答题时间，答题时长，1.往生日期，2.49 日内回向名单，3.亡者姓名，4.堕胎婴灵姓名（若无名字，填写：父母之一姓名+"堕胎婴灵"），5.旁生姓名（请填写具体昵称，勿填写如虫、鸟、猫、狗等泛称。）',
+      ];
+
+      let index = 1;
+      const now = new Date().toISOString();
 
       data.deceased?.forEach((item: { name: string; date: string }) => {
-        rows.push(`亡者，${item.name},${item.date}`);
+        rows.push(
+          `${index},${now},${now},,${item.date},A.亡者，${item.name},,`
+        );
+        index++;
       });
+
       data.infants?.forEach((item: { name: string; date: string }) => {
-        rows.push(`堕胎婴灵，${item.name},${item.date}`);
+        rows.push(
+          `${index},${now},${now},,${item.date},B.堕胎婴灵,,${item.name},`
+        );
+        index++;
       });
+
       data.animals?.forEach((item: { name: string; date: string }) => {
-        rows.push(`旁生，${item.name},${item.date}`);
+        rows.push(
+          `${index},${now},${now},,${item.date},C.旁生,,,${item.name}`
+        );
+        index++;
       });
 
       // 添加 BOM 让 Excel 正确显示中文
