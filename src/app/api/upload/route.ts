@@ -37,28 +37,28 @@ export async function POST(request: NextRequest) {
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     // 准备插入数据（去重：同一分类 + 同一姓名跳过）
-    const records: Array<{ name: string; category: string; death_date: string; fill_date?: string }> = [];
+    const records: Array<{ name: string; category: string; death_date: string }> = [];
     const seen = new Set<string>();
 
     for (const item of data.deceased) {
       const key = `deceased:${item.name}`;
       if (!seen.has(key)) {
         seen.add(key);
-        records.push({ name: item.name, category: 'deceased', death_date: item.date, fill_date: item.fill_date });
+        records.push({ name: item.name, category: 'deceased', death_date: item.date });
       }
     }
     for (const item of data.infants) {
       const key = `infants:${item.name}`;
       if (!seen.has(key)) {
         seen.add(key);
-        records.push({ name: item.name, category: 'infants', death_date: item.date, fill_date: item.fill_date });
+        records.push({ name: item.name, category: 'infants', death_date: item.date });
       }
     }
     for (const item of data.animals) {
       const key = `animals:${item.name}`;
       if (!seen.has(key)) {
         seen.add(key);
-        records.push({ name: item.name, category: 'animals', death_date: item.date, fill_date: item.fill_date });
+        records.push({ name: item.name, category: 'animals', death_date: item.date });
       }
     }
 
