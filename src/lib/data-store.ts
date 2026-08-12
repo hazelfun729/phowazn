@@ -33,8 +33,8 @@ function cleanName(raw: string, category: 'deceased' | 'infants' | 'animals'): s
   }
   name = name.replace(/亡者|姓名|旁生/g, '');
 
-  // 2. 删除标点符号和连接符（保留括号用于注音）
-  name = name.replace(/[：:、,，\-—+。.]/g, '');
+  // 2. 删除标点符号和连接符（保留括号用于注音，保留双引号）
+  name = name.replace(/[：:、\-—+。.]/g, '');
 
   // 3. 删除"父母之一"、"父母"前缀（仅在堕胎婴灵栏）
   if (category === 'infants') {
@@ -43,6 +43,19 @@ function cleanName(raw: string, category: 'deceased' | 'infants' | 'animals'): s
 
   // 4. 清理首尾空格
   return name.trim();
+}
+
+/**
+ * 拆分逗号分隔的多个姓名
+ * 支持中英文逗号、分号
+ */
+function splitNames(raw: string): string[] {
+  if (!raw || !raw.trim()) return [];
+  
+  // 按中英文逗号、分号拆分
+  const names = raw.split(/[,，;；]/).map(n => n.trim()).filter(n => n.length > 0);
+  
+  return names;
 }
 
 export function parseCSV(csvText: string): SiteData {
@@ -64,19 +77,36 @@ export function parseCSV(csvText: string): SiteData {
     const date = (row[COL_DATE] || '').trim();
     const category = (row[COL_CATEGORY] || '').trim();
 
-    // 智能提取姓名
-    const deceasedName = cleanName((row[COL_DECEASED] || '').trim(), 'deceased');
-    const infantName = cleanName((row[COL_INFANTS] || '').trim(), 'infants');
-    const animalName = cleanName((row[COL_ANIMALS] || '').trim(), 'animals');
-
     if (!date) continue;
 
-    if (category === 'A.亡者' && deceasedName) {
-      deceased.push({ name: deceasedName, date });
-    } else if (category === 'B.堕胎婴灵' && infantName) {
-      infants.push({ name: infantName, date });
-    } else if (category === 'C.旁生' && animalName) {
-      animals.push({ name: animalName, date });
+    // 智能提取姓名（支持逗号分隔的多个姓名）
+    if (category === 'A.亡者') {
+      const rawNames = (row[COL_DECEASED] || '').trim();
+      const names = splitNames(rawNames);
+      for (const rawName of names) {
+        const deceasedName = cleanName(rawName, 'deceased');
+        if (deceasedName) {
+          deceased.push({ name: deceasedName, date });
+        }
+      }
+    } else if (category === 'B.堕胎婴灵') {
+      const rawNames = (row[COL_INFANTS] || '').trim();
+      const names = splitNames(rawNames);
+      for (const rawName of names) {
+        const infantName = cleanName(rawName, 'infants');
+        if (infantName) {
+          infants.push({ name: infantName, date });
+        }
+      }
+    } else if (category === 'C.旁生') {
+      const rawNames = (row[COL_ANIMALS] || '').trim();
+      const names = splitNames(rawNames);
+      for (const rawName of names) {
+        const animalName = cleanName(rawName, 'animals');
+        if (animalName) {
+          animals.push({ name: animalName, date });
+        }
+      }
     }
   }
 
