@@ -1,14 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseUrl = process.env.COZE_SUPABASE_URL || '';
-const supabaseKey = process.env.COZE_SUPABASE_SERVICE_ROLE_KEY || '';
-
-if (!supabaseUrl || !supabaseKey) {
-  console.error('请设置环境变量 COZE_SUPABASE_URL 和 COZE_SUPABASE_SERVICE_ROLE_KEY');
-}
-
-const supabase = createClient(supabaseUrl, supabaseKey);
+import { getSupabaseClient } from '@/storage/database/supabase-client';
 
 // DELETE /api/records/[id] - 删除单条记录
 export async function DELETE(
@@ -16,6 +7,8 @@ export async function DELETE(
   context: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
+    const client = getSupabaseClient();
+    
     // 兼容不同版本的 Next.js 和 Netlify
     const params = await Promise.resolve(context.params);
     
@@ -42,14 +35,14 @@ export async function DELETE(
       return NextResponse.json({ error: '无效的 ID' }, { status: 400 });
     }
 
-    const { error } = await supabase
+    const { error } = await client
       .from('deceased_records')
       .delete()
       .eq('id', id);
 
     if (error) {
       console.error('删除失败:', error);
-      return NextResponse.json({ error: '删除失败' }, { status: 500 });
+      return NextResponse.json({ error: `删除失败: ${error.message}` }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, message: '删除成功' });
@@ -65,6 +58,8 @@ export async function PUT(
   context: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
+    const client = getSupabaseClient();
+    
     // 兼容不同版本的 Next.js 和 Netlify
     const params = await Promise.resolve(context.params);
     
@@ -72,10 +67,8 @@ export async function PUT(
     let idStr: string | undefined;
     
     if (typeof params === 'string') {
-      // params 直接是 ID 字符串
       idStr = params;
     } else if (params && typeof params === 'object') {
-      // params 是对象
       if ('id' in params) {
         const idVal = (params as Record<string, unknown>).id;
         idStr = typeof idVal === 'string' ? idVal : String(idVal);
@@ -107,7 +100,7 @@ export async function PUT(
       return NextResponse.json({ error: '缺少必要字段' }, { status: 400 });
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await client
       .from('deceased_records')
       .update({ name, category, death_date })
       .eq('id', id)
@@ -116,7 +109,7 @@ export async function PUT(
 
     if (error) {
       console.error('更新失败:', error);
-      return NextResponse.json({ error: '更新失败' }, { status: 500 });
+      return NextResponse.json({ error: `更新失败: ${error.message}` }, { status: 500 });
     }
 
     return NextResponse.json({ success: true, data });
