@@ -42,13 +42,22 @@ export async function DELETE(
 // PUT /api/records/[id] - 修改单条记录
 export async function PUT(
   request: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
-    const { id: idStr } = await context.params;
+    // 兼容不同版本的 Next.js
+    const params = await Promise.resolve(context.params);
+    const idStr = params.id;
+    
+    if (!idStr) {
+      console.error('ID 参数缺失, context.params:', context.params);
+      return NextResponse.json({ error: '无效的 ID：参数缺失' }, { status: 400 });
+    }
+    
     const id = parseInt(idStr);
     if (isNaN(id)) {
-      return NextResponse.json({ error: '无效的 ID' }, { status: 400 });
+      console.error('ID 解析失败, idStr:', idStr);
+      return NextResponse.json({ error: '无效的 ID：解析失败' }, { status: 400 });
     }
 
     const body = await request.json();
