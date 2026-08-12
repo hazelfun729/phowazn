@@ -9,6 +9,7 @@ interface Record {
   name: string;
   category: string;
   death_date: string;
+  fill_date: string | null;
   created_at: string;
 }
 
@@ -494,7 +495,7 @@ export default function AdminPage() {
                 <span className="flex-1">姓名</span>
                 <span className="w-24">分类</span>
                 <span className="w-28">往生日期</span>
-                <span className="w-32">上传时间</span>
+                <span className="w-32">填表时间</span>
                 <span className="w-16">操作</span>
               </div>
 
@@ -521,13 +522,22 @@ export default function AdminPage() {
                     {record.death_date}
                   </span>
                   <span className="w-32 text-xs" style={{ color: '#6b6560' }}>
-                    {new Date(record.created_at).toLocaleString('zh-CN', { 
-                      year: 'numeric', 
-                      month: '2-digit', 
-                      day: '2-digit',
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    })}
+                    {record.fill_date 
+                      ? new Date(record.fill_date).toLocaleString('zh-CN', { 
+                          year: 'numeric', 
+                          month: '2-digit', 
+                          day: '2-digit',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })
+                      : new Date(record.created_at).toLocaleString('zh-CN', { 
+                          year: 'numeric', 
+                          month: '2-digit', 
+                          day: '2-digit',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })
+                    }
                   </span>
                   <div className="w-16">
                     <button

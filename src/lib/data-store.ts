@@ -2,7 +2,8 @@ import Papa from 'papaparse';
 
 export interface NameEntry {
   name: string;
-  date: string; // YYYY-MM-DD
+  date: string; // YYYY-MM-DD 往生日期
+  fill_date?: string; // 填表日期
 }
 
 export interface SiteData {
@@ -13,6 +14,7 @@ export interface SiteData {
 }
 
 // CSV row indices (0-based)
+const COL_FILL_DATE = 1; // 开始答题时间（填表日期）
 const COL_DATE = 4; // 往生日期
 const COL_CATEGORY = 5; // 分类
 const COL_DECEASED = 6; // 亡者姓名
@@ -74,6 +76,7 @@ export function parseCSV(csvText: string): SiteData {
   for (const row of rows) {
     if (!row || row.length < 9) continue;
 
+    const fillDate = (row[COL_FILL_DATE] || '').trim(); // 填表日期
     const date = (row[COL_DATE] || '').trim();
     const category = (row[COL_CATEGORY] || '').trim();
 
@@ -86,7 +89,7 @@ export function parseCSV(csvText: string): SiteData {
       for (const rawName of names) {
         const deceasedName = cleanName(rawName, 'deceased');
         if (deceasedName) {
-          deceased.push({ name: deceasedName, date });
+          deceased.push({ name: deceasedName, date, fill_date: fillDate || undefined });
         }
       }
     } else if (category === 'B.堕胎婴灵') {
@@ -95,7 +98,7 @@ export function parseCSV(csvText: string): SiteData {
       for (const rawName of names) {
         const infantName = cleanName(rawName, 'infants');
         if (infantName) {
-          infants.push({ name: infantName, date });
+          infants.push({ name: infantName, date, fill_date: fillDate || undefined });
         }
       }
     } else if (category === 'C.旁生') {
@@ -104,7 +107,7 @@ export function parseCSV(csvText: string): SiteData {
       for (const rawName of names) {
         const animalName = cleanName(rawName, 'animals');
         if (animalName) {
-          animals.push({ name: animalName, date });
+          animals.push({ name: animalName, date, fill_date: fillDate || undefined });
         }
       }
     }

@@ -84,6 +84,7 @@ export async function POST(request: NextRequest) {
         name,
         category,
         death_date,
+        fill_date: new Date().toISOString(),
       })
       .select()
       .single();
