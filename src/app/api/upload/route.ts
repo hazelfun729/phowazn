@@ -24,6 +24,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // 获取客户端信息
+    const ipAddress = request.headers.get('x-forwarded-for') || 
+                      request.headers.get('x-real-ip') || 
+                      'unknown';
+    const userAgent = request.headers.get('user-agent') || 'unknown';
+
     const text = await file.text();
     const data = parseCSV(text);
 
@@ -87,6 +93,15 @@ export async function POST(request: NextRequest) {
 
       insertedCount = inserted?.length || 0;
     }
+
+    // 记录上传日志
+    await supabase.from('upload_logs').insert({
+      ip_address: ipAddress,
+      user_agent: userAgent,
+      file_name: file.name,
+      record_count: insertedCount,
+      source: 'manual',
+    });
 
     return NextResponse.json({
       success: true,

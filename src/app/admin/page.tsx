@@ -12,6 +12,16 @@ interface Record {
   created_at: string;
 }
 
+interface UploadLog {
+  id: number;
+  uploaded_at: string;
+  ip_address: string;
+  user_agent: string;
+  file_name: string;
+  record_count: number;
+  source: string;
+}
+
 export default function AdminPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadResult, setUploadResult] = useState<{ success: boolean; message: string } | null>(null);
@@ -22,6 +32,8 @@ export default function AdminPage() {
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [editingRecord, setEditingRecord] = useState<Record | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [uploadLogs, setUploadLogs] = useState<UploadLog[]>([]);
+  const [showLogs, setShowLogs] = useState(false);
 
   // 获取所有记录
   const fetchRecords = async () => {
@@ -38,8 +50,22 @@ export default function AdminPage() {
     }
   };
 
+  // 获取上传日志
+  const fetchUploadLogs = async () => {
+    try {
+      const res = await fetch('/api/upload-logs');
+      const data = await res.json();
+      if (data.success) {
+        setUploadLogs(data.data);
+      }
+    } catch (error) {
+      console.error('获取上传日志失败:', error);
+    }
+  };
+
   useEffect(() => {
     fetchRecords();
+    fetchUploadLogs();
   }, []);
 
   // 文件上传处理
@@ -314,7 +340,7 @@ export default function AdminPage() {
         </div>
 
         {/* 下载按钮 */}
-        <div className="mb-8">
+        <div className="mb-8 flex gap-4">
           <button
             onClick={handleDownload}
             disabled={isDownloading}
@@ -323,7 +349,57 @@ export default function AdminPage() {
           >
             {isDownloading ? '下载中...' : '下载最新名单'}
           </button>
+          <button
+            onClick={() => setShowLogs(!showLogs)}
+            className="px-6 py-3 text-sm font-medium rounded-lg transition-all hover:opacity-80"
+            style={{ backgroundColor: '#6b6560', color: '#faf8f5' }}
+          >
+            {showLogs ? '隐藏上传日志' : '查看上传日志'}
+          </button>
         </div>
+
+        {/* 上传日志区域 */}
+        {showLogs && (
+          <div className="mb-8 border rounded-lg p-6" style={{ borderColor: '#e8e4df', backgroundColor: '#faf8f5' }}>
+            <h2 className="text-lg font-semibold mb-4" style={{ fontFamily: 'STZhongsong, SimSun, serif' }}>
+              上传日志
+            </h2>
+            {uploadLogs.length === 0 ? (
+              <p className="text-sm" style={{ color: '#6b6560' }}>暂无上传记录</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b" style={{ borderColor: '#e8e4df' }}>
+                      <th className="text-left py-2 px-2">上传时间</th>
+                      <th className="text-left py-2 px-2">来源</th>
+                      <th className="text-left py-2 px-2">文件名</th>
+                      <th className="text-left py-2 px-2">IP地址</th>
+                      <th className="text-left py-2 px-2">记录数</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {uploadLogs.map((log) => (
+                      <tr key={log.id} className="border-b" style={{ borderColor: '#e8e4df' }}>
+                        <td className="py-2 px-2">{new Date(log.uploaded_at).toLocaleString('zh-CN')}</td>
+                        <td className="py-2 px-2">
+                          <span className={`px-2 py-1 rounded text-xs ${
+                            log.source === 'form' ? 'bg-blue-100 text-blue-800' : 'bg-green-100 text-green-800'
+                          }`}>
+                            {log.source === 'form' ? '表单提交' : 'CSV上传'}
+                          </span>
+                        </td>
+                        <td className="py-2 px-2 max-w-xs truncate">{log.file_name}</td>
+                        <td className="py-2 px-2 font-mono text-xs">{log.ip_address}</td>
+                        <td className="py-2 px-2">{log.record_count}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* 记录管理区域 */}
         <div className="border rounded-lg p-8" style={{ borderColor: '#e8e4df', backgroundColor: '#faf8f5' }}>

@@ -12,6 +12,12 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { name, category, death_date } = body as SubmitRequest;
 
+    // 获取客户端信息
+    const ipAddress = request.headers.get('x-forwarded-for') || 
+                      request.headers.get('x-real-ip') || 
+                      'unknown';
+    const userAgent = request.headers.get('user-agent') || 'unknown';
+
     // 验证必填字段
     if (!name || !category || !death_date) {
       return NextResponse.json(
@@ -85,6 +91,15 @@ export async function POST(request: NextRequest) {
     if (error) {
       throw new Error(`插入失败: ${error.message}`);
     }
+
+    // 记录上传日志
+    await client.from('upload_logs').insert({
+      ip_address: ipAddress,
+      user_agent: userAgent,
+      file_name: `表单提交: ${name}`,
+      record_count: 1,
+      source: 'form',
+    });
 
     return NextResponse.json({
       success: true,
