@@ -31,14 +31,14 @@ export default function SubmitPage() {
   const handleNext = () => {
     setError('');
     if (step === 1) {
-      if (!deathDate) {
-        setError('请选择往生日期');
+      if (!category) {
+        setError('请选择分类');
         return;
       }
       setStep(2);
     } else if (step === 2) {
-      if (!category) {
-        setError('请选择分类');
+      if (!deathDate) {
+        setError('请选择往生日期');
         return;
       }
       setStep(3);
@@ -202,27 +202,8 @@ export default function SubmitPage() {
 
           {/* 表单内容 */}
           <div className="bg-white rounded-lg p-8 shadow-sm border border-[#e8e4df]">
-            {/* 第1步：往生日期 */}
+            {/* 第1步：分类选择 */}
             {step === 1 && (
-              <div className="space-y-6">
-                <div>
-                  <label className="block font-serif text-lg text-[#2c2c2c] mb-2">
-                    往生日期
-                  </label>
-                  <p className="text-[#6b6560] text-sm mb-4">请选择亡者往生的日期</p>
-                  <input
-                    type="date"
-                    value={deathDate}
-                    max={today}
-                    onChange={(e) => setDeathDate(e.target.value)}
-                    className="w-full px-4 py-3 border border-[#e8e4df] rounded focus:outline-none focus:border-[#8b6914] font-serif text-[#2c2c2c] bg-[#faf8f5]"
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* 第2步：分类选择 */}
-            {step === 2 && (
               <div className="space-y-6">
                 <div>
                   <label className="block font-serif text-lg text-[#2c2c2c] mb-2">
@@ -249,9 +230,16 @@ export default function SubmitPage() {
                           value={item.value}
                           checked={category === item.value}
                           onChange={(e) => setCategory(e.target.value as Category)}
-                          className="w-4 h-4 text-[#8b6914] border-[#e8e4df] focus:ring-[#8b6914]"
+                          className="sr-only"
                         />
-                        <span className="ml-3 font-serif text-[#2c2c2c]">{item.label}</span>
+                        <div className={`w-5 h-5 rounded-full border-2 mr-3 flex items-center justify-center ${
+                          category === item.value ? 'border-[#8b6914]' : 'border-[#e8e4df]'
+                        }`}>
+                          {category === item.value && (
+                            <div className="w-2.5 h-2.5 rounded-full bg-[#8b6914]"></div>
+                          )}
+                        </div>
+                        <span className="font-serif text-[#2c2c2c]">{item.label}</span>
                       </label>
                     ))}
                   </div>
@@ -259,6 +247,24 @@ export default function SubmitPage() {
               </div>
             )}
 
+            {/* 第2步：往生日期 */}
+            {step === 2 && (
+              <div className="space-y-6">
+                <div>
+                  <label className="block font-serif text-lg text-[#2c2c2c] mb-2">
+                    往生日期
+                  </label>
+                  <p className="text-[#6b6560] text-sm mb-4">请选择亡者往生的日期</p>
+                  <input
+                    type="date"
+                    value={deathDate}
+                    max={today}
+                    onChange={(e) => setDeathDate(e.target.value)}
+                    className="w-full px-4 py-3 border border-[#e8e4df] rounded focus:outline-none focus:border-[#8b6914] font-serif text-[#2c2c2c] bg-[#faf8f5]"
+                  />
+                </div>
+              </div>
+            )}
             {/* 第3步：姓名输入 */}
             {step === 3 && (
               <div className="space-y-6">
