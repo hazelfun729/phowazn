@@ -482,25 +482,26 @@ export default function AdminPage() {
               暂无记录
             </div>
           ) : (
-            {/* 表头 - 固定在顶部 */}
-            <div className="flex items-center gap-2 px-4 py-2 font-medium text-sm sticky top-0 z-10" style={{ backgroundColor: '#f5f2ed' }}>
-              <input
-                type="checkbox"
-                checked={selectedIds.length === filteredRecords.length && filteredRecords.length > 0}
-                onChange={handleSelectAll}
-                className="w-4 h-4"
-              />
-              <span className="flex-1">姓名</span>
-              <span className="w-24">分类</span>
-              <span className="w-28">往生日期</span>
-              <span className="w-32">上传时间</span>
-              <span className="w-16">操作</span>
-            </div>
+            <>
+              {/* 表头 - 固定在顶部 */}
+              <div className="flex items-center gap-2 px-4 py-2 font-medium text-sm sticky top-0 z-10" style={{ backgroundColor: '#f5f2ed' }}>
+                <input
+                  type="checkbox"
+                  checked={selectedIds.length === filteredRecords.length && filteredRecords.length > 0}
+                  onChange={handleSelectAll}
+                  className="w-4 h-4"
+                />
+                <span className="flex-1">姓名</span>
+                <span className="w-24">分类</span>
+                <span className="w-28">往生日期</span>
+                <span className="w-32">上传时间</span>
+                <span className="w-16">操作</span>
+              </div>
 
-            {/* 记录列表 - 可滚动 */}
-            <div className="space-y-2 max-h-96 overflow-y-auto">
-              {/* 记录行 */}
-              {filteredRecords.map(record => (
+              {/* 记录列表 - 可滚动 */}
+              <div className="space-y-2 max-h-96 overflow-y-auto">
+                {/* 记录行 */}
+                {filteredRecords.map(record => (
                 <div
                   key={record.id}
                   className="flex items-center gap-2 px-4 py-3 border-b hover:bg-opacity-50 transition-colors"
@@ -539,7 +540,8 @@ export default function AdminPage() {
                   </div>
                 </div>
               ))}
-            </div>
+              </div>
+            </>
           )}
         </div>
 
