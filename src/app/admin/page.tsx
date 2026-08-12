@@ -494,7 +494,8 @@ export default function AdminPage() {
                 <span className="flex-1">姓名</span>
                 <span className="w-24">分类</span>
                 <span className="w-28">往生日期</span>
-                <span className="w-24">操作</span>
+                <span className="w-32">上传时间</span>
+                <span className="w-16">操作</span>
               </div>
 
               {/* 记录行 */}
@@ -517,20 +518,22 @@ export default function AdminPage() {
                   <span className="w-28 text-sm" style={{ color: '#6b6560' }}>
                     {record.death_date}
                   </span>
-                  <div className="w-24 flex gap-2">
+                  <span className="w-32 text-xs" style={{ color: '#6b6560' }}>
+                    {new Date(record.created_at).toLocaleString('zh-CN', { 
+                      year: 'numeric', 
+                      month: '2-digit', 
+                      day: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </span>
+                  <div className="w-16">
                     <button
                       onClick={() => setEditingRecord(record)}
                       className="px-2 py-1 text-xs rounded hover:opacity-80"
                       style={{ backgroundColor: '#8b6914', color: '#fff' }}
                     >
                       编辑
-                    </button>
-                    <button
-                      onClick={() => handleDelete(record.id)}
-                      className="px-2 py-1 text-xs rounded hover:opacity-80"
-                      style={{ backgroundColor: '#dc2626', color: '#fff' }}
-                    >
-                      删除
                     </button>
                   </div>
                 </div>
