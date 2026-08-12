@@ -44,12 +44,14 @@
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
 
-  /* 水墨风格字体 */
+  /* 水墨风格字体 - 优先使用网络字体，确保跨平台一致 */
   --font-serif:
-    'STZhongsong', '华文中宋', 'Noto Serif SC', 'Songti SC', 'SimSun',
-    ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+    'Noto Serif SC', 'Songti SC', 'STZhongsong', '华文中宋', 'SimSun',
+    'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei',
+    ui-serif, Georgia, Cambodia, 'Times New Roman', Times, serif;
   --font-sans:
-    'Noto Serif SC', 'Songti SC', 'SimSun', ui-serif, Georgia, Cambria,
+    'Noto Serif SC', 'Songti SC', 'SimSun', 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', ui-serif, Georgia, Cambria,
     'Times New Roman', Times, serif;
 }
 

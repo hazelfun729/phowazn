@@ -297,7 +297,7 @@ export default function AdminPage() {
       <div className="max-w-4xl mx-auto">
         {/* 标题 */}
         <div className="text-center mb-12">
-          <h1 className="text-3xl font-bold mb-4" style={{ fontFamily: 'STZhongsong, SimSun, serif', letterSpacing: '0.1em' }}>
+          <h1 className="text-3xl font-bold mb-4" style={{ fontFamily: "'Noto Serif SC', 'Songti SC', 'STZhongsong', '华文中宋', 'SimSun', serif", letterSpacing: '0.1em' }}>
             数据管理
           </h1>
           <div className="w-16 h-0.5 mx-auto" style={{ backgroundColor: '#8b6914' }}></div>
@@ -312,7 +312,7 @@ export default function AdminPage() {
 
         {/* 上传区域 */}
         <div className="mb-12 p-8 border border-dashed rounded-lg" style={{ borderColor: '#e8e4df', backgroundColor: '#faf8f5' }}>
-          <h2 className="text-xl font-semibold mb-4" style={{ fontFamily: 'STZhongsong, SimSun, serif' }}>
+          <h2 className="text-xl font-semibold mb-4" style={{ fontFamily: "'Noto Serif SC', 'Songti SC', 'STZhongsong', '华文中宋', 'SimSun', serif" }}>
             上传数据
           </h2>
           <p className="text-sm mb-6" style={{ color: '#6b6560' }}>
@@ -362,7 +362,7 @@ export default function AdminPage() {
         {/* 上传日志区域 */}
         {showLogs && (
           <div className="mb-8 border rounded-lg p-6" style={{ borderColor: '#e8e4df', backgroundColor: '#faf8f5' }}>
-            <h2 className="text-lg font-semibold mb-4" style={{ fontFamily: 'STZhongsong, SimSun, serif' }}>
+            <h2 className="text-lg font-semibold mb-4" style={{ fontFamily: "'Noto Serif SC', 'Songti SC', 'STZhongsong', '华文中宋', 'SimSun', serif" }}>
               上传日志
             </h2>
             {uploadLogs.length === 0 ? (
@@ -405,7 +405,7 @@ export default function AdminPage() {
         {/* 记录管理区域 */}
         <div className="border rounded-lg p-8" style={{ borderColor: '#e8e4df', backgroundColor: '#faf8f5' }}>
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold" style={{ fontFamily: 'STZhongsong, SimSun, serif' }}>
+            <h2 className="text-xl font-semibold" style={{ fontFamily: "'Noto Serif SC', 'Songti SC', 'STZhongsong', '华文中宋', 'SimSun', serif" }}>
               记录管理
             </h2>
             <span className="text-sm" style={{ color: '#6b6560' }}>
@@ -559,7 +559,7 @@ export default function AdminPage() {
         {editingRecord && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-lg p-8 max-w-md w-full">
-              <h3 className="text-lg font-semibold mb-6" style={{ fontFamily: 'STZhongsong, SimSun, serif' }}>
+              <h3 className="text-lg font-semibold mb-6" style={{ fontFamily: "'Noto Serif SC', 'Songti SC', 'STZhongsong', '华文中宋', 'SimSun', serif" }}>
                 编辑记录
               </h3>
 
