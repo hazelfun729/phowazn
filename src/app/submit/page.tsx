@@ -27,6 +27,9 @@ export default function SubmitPage() {
 
   // 获取今天的日期（用于日期选择器的最大值）
   const today = new Date().toISOString().split('T')[0];
+  const fortyNineDaysAgo = new Date();
+  fortyNineDaysAgo.setDate(fortyNineDaysAgo.getDate() - 49);
+  const minDate = fortyNineDaysAgo.toISOString().split('T')[0];
 
   const handleNext = () => {
     setError('');
@@ -258,6 +261,7 @@ export default function SubmitPage() {
                   <input
                     type="date"
                     value={deathDate}
+                    min={minDate}
                     max={today}
                     onChange={(e) => setDeathDate(e.target.value)}
                     className="w-full px-4 py-3 border border-[#e8e4df] rounded focus:outline-none focus:border-[#8b6914] font-serif text-[#2c2c2c] bg-[#faf8f5]"
