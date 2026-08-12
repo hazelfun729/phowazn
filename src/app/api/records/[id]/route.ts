@@ -13,11 +13,31 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 // DELETE /api/records/[id] - 删除单条记录
 export async function DELETE(
   request: NextRequest,
-  context: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
-    const { id: idStr } = await context.params;
-    const id = parseInt(idStr);
+    // 兼容不同版本的 Next.js 和 Netlify
+    const params = await Promise.resolve(context.params);
+    
+    // 尝试多种方式获取 ID
+    let idStr: string | undefined;
+    
+    if (typeof params === 'string') {
+      idStr = params;
+    } else if (params && typeof params === 'object') {
+      if ('id' in params) {
+        const idVal = (params as Record<string, unknown>).id;
+        idStr = typeof idVal === 'string' ? idVal : String(idVal);
+      }
+    }
+    
+    if (!idStr) {
+      const url = new URL(request.url);
+      const parts = url.pathname.split('/');
+      idStr = parts[parts.length - 1];
+    }
+    
+    const id = parseInt(idStr, 10);
     if (isNaN(id)) {
       return NextResponse.json({ error: '无效的 ID' }, { status: 400 });
     }
@@ -45,19 +65,39 @@ export async function PUT(
   context: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
-    // 兼容不同版本的 Next.js
+    // 兼容不同版本的 Next.js 和 Netlify
     const params = await Promise.resolve(context.params);
-    const idStr = params.id;
+    
+    // 尝试多种方式获取 ID
+    let idStr: string | undefined;
+    
+    if (typeof params === 'string') {
+      // params 直接是 ID 字符串
+      idStr = params;
+    } else if (params && typeof params === 'object') {
+      // params 是对象
+      if ('id' in params) {
+        const idVal = (params as Record<string, unknown>).id;
+        idStr = typeof idVal === 'string' ? idVal : String(idVal);
+      }
+    }
+    
+    // 如果还是获取不到，尝试从 URL 中提取
+    if (!idStr) {
+      const url = new URL(request.url);
+      const parts = url.pathname.split('/');
+      idStr = parts[parts.length - 1];
+    }
+    
+    console.log('PUT 请求 - URL:', request.url, 'params:', JSON.stringify(params), 'idStr:', idStr);
     
     if (!idStr) {
-      console.error('ID 参数缺失, context.params:', context.params);
       return NextResponse.json({ error: '无效的 ID：参数缺失' }, { status: 400 });
     }
     
-    const id = parseInt(idStr);
+    const id = parseInt(idStr, 10);
     if (isNaN(id)) {
-      console.error('ID 解析失败, idStr:', idStr);
-      return NextResponse.json({ error: '无效的 ID：解析失败' }, { status: 400 });
+      return NextResponse.json({ error: `无效的 ID：解析失败 (idStr="${idStr}")` }, { status: 400 });
     }
 
     const body = await request.json();
