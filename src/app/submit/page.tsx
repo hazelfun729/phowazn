@@ -25,11 +25,20 @@ export default function SubmitPage() {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
 
-  // 获取今天的日期（用于日期选择器的最大值）- 使用本地时间避免 UTC 偏移
-  const today = new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '-');
-  const fortyNineDaysAgo = new Date();
-  fortyNineDaysAgo.setDate(fortyNineDaysAgo.getDate() - 49);
-  const minDate = fortyNineDaysAgo.toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '-');
+  // 获取北京时间（UTC+8）
+  const getBeijingDate = () => {
+    const now = new Date();
+    const beijingTime = new Date(now.getTime() + 8 * 60 * 60 * 1000); // UTC+8
+    return {
+      today: beijingTime.toISOString().split('T')[0],
+      fortyNineDaysAgo: (() => {
+        const d = new Date(beijingTime);
+        d.setDate(d.getDate() - 49);
+        return d.toISOString().split('T')[0];
+      })(),
+    };
+  };
+  const { today, fortyNineDaysAgo: minDate } = getBeijingDate();
 
   const handleNext = () => {
     setError('');

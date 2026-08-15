@@ -281,7 +281,7 @@ function Footer({ updatedAt }: { updatedAt: string | null }) {
           </p>
         )}
         <p className="font-serif text-xs text-[#a09a94]">
-          &copy; {new Date().getFullYear()} PW影院助念名单 &middot;
+          &copy; {new Date(new Date().getTime() + 8 * 60 * 60 * 1000).getFullYear()} PW影院助念名单 &middot;
           所有数据仅供内部回向使用
         </p>
         <p className="mt-2 font-serif text-xs text-[#b8b2ab]">

@@ -1,31 +1,41 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseClient } from '@/storage/database/supabase-client';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const client = getSupabaseClient();
 
-    // 计算49天前的日期（使用本地时间，避免时区问题）
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const fortyNineDaysAgo = new Date(today);
-    fortyNineDaysAgo.setDate(fortyNineDaysAgo.getDate() - 49);
-    
-    // 使用本地日期格式 YYYY-MM-DD（避免 UTC 转换导致的时区问题）
-    const year = fortyNineDaysAgo.getFullYear();
-    const month = String(fortyNineDaysAgo.getMonth() + 1).padStart(2, '0');
-    const day = String(fortyNineDaysAgo.getDate()).padStart(2, '0');
-    const fortyNineDaysAgoStr = `${year}-${month}-${day}`;
+    // 统一使用北京时间（UTC+8）
+    const getBeijingDate = () => {
+      const now = new Date();
+      const beijingTime = new Date(now.getTime() + 8 * 60 * 60 * 1000);
+      return {
+        today: beijingTime.toISOString().split('T')[0],
+        cutoff: (() => {
+          const d = new Date(beijingTime);
+          d.setDate(d.getDate() - 49);
+          return d.toISOString().split('T')[0];
+        })(),
+      };
+    };
 
-    // 计算90天前的日期（用于清理）
-    const ninetyDaysAgo = new Date(today);
-    ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+    // 优先使用前端传入的日期（用户本地时间），否则使用北京时间
+    const { searchParams } = new URL(request.url);
+    const todayStr = searchParams.get('today');
+    const fortyNineDaysAgoStr = searchParams.get('fortyNineDaysAgo');
+
+    let cutoffDateStr: string;
+    if (todayStr && fortyNineDaysAgoStr) {
+      cutoffDateStr = fortyNineDaysAgoStr;
+    } else {
+      cutoffDateStr = getBeijingDate().cutoff;
+    }
 
     // 查询49天内的数据
     const { data, error } = await client
       .from('deceased_records')
       .select('id, name, category, death_date, created_at')
-      .gte('death_date', fortyNineDaysAgoStr)
+      .gte('death_date', cutoffDateStr)
       .order('death_date', { ascending: false });
 
     if (error) {
@@ -45,8 +55,13 @@ export async function GET() {
       .filter(r => r.category === 'animals')
       .map(r => ({ name: r.name, date: r.death_date }));
 
+    // 使用北京时间（UTC+8）
+    const now = new Date();
+    const beijingTime = new Date(now.getTime() + 8 * 60 * 60 * 1000);
+    const updatedAt = beijingTime.toISOString().replace('T', ' ').substring(0, 16);
+
     return NextResponse.json({
-      updatedAt: new Date().toISOString(),
+      updatedAt,
       deceased,
       infants,
       animals,

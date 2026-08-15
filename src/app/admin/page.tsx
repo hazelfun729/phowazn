@@ -124,7 +124,10 @@ export default function AdminPage() {
       // 表头
       csvRows.push('编号，开始答题时间，结束答题时间，答题时长，1.往生日期，2.49 日内回向名单，3.亡者姓名，4.堕胎婴灵姓名（若无名字，填写：父母之一姓名+"堕胎婴灵"），5.旁生姓名（请填写具体昵称，勿填写如虫、鸟、猫、狗等泛称。）');
 
-      const now = new Date().toISOString();
+      // 使用北京时间（UTC+8）
+      const now = new Date();
+      const beijingTime = new Date(now.getTime() + 8 * 60 * 60 * 1000);
+      const nowStr = beijingTime.toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' }).replace(/\//g, '-');
       data.data.forEach((record: Record, index: number) => {
         const categoryMap: { [key: string]: string } = {
           deceased: 'A.亡者',
@@ -137,7 +140,7 @@ export default function AdminPage() {
         const animalName = record.category === 'animals' ? record.name : '';
 
         csvRows.push(
-          `${index + 1},${now},${now},,${record.death_date},${categoryText},${deceasedName},${infantName},${animalName}`
+          `${index + 1},${nowStr},${nowStr},,${record.death_date},${categoryText},${deceasedName},${infantName},${animalName}`
         );
       });
 
@@ -147,7 +150,11 @@ export default function AdminPage() {
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `助念名单_${new Date().toISOString().split('T')[0]}.csv`;
+      // 使用北京时间（UTC+8）
+      const beijingNow = new Date();
+      const beijingTimeForFilename = new Date(beijingNow.getTime() + 8 * 60 * 60 * 1000);
+      const today = beijingTimeForFilename.toISOString().split('T')[0];
+      link.download = `助念名单_${today}.csv`;
       link.click();
       URL.revokeObjectURL(url);
     } catch (error) {

@@ -113,8 +113,12 @@ export function parseCSV(csvText: string): SiteData {
     }
   }
 
+  // 使用北京时间（UTC+8）
+  const now = new Date(new Date().getTime() + 8 * 60 * 60 * 1000);
+  const updatedAt = `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}-${String(now.getUTCDate()).padStart(2, '0')}T${String(now.getUTCHours()).padStart(2, '0')}:${String(now.getUTCMinutes()).padStart(2, '0')}:00`;
+
   return {
-    updatedAt: new Date().toISOString(),
+    updatedAt,
     deceased,
     infants,
     animals,

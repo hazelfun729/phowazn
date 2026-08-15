@@ -5,8 +5,10 @@ export async function POST() {
   try {
     const client = getSupabaseClient();
 
-    // 计算90天前的日期
-    const ninetyDaysAgo = new Date();
+    // 计算90天前的日期（统一使用北京时间 UTC+8）
+    const now = new Date();
+    const beijingTime = new Date(now.getTime() + 8 * 60 * 60 * 1000);
+    const ninetyDaysAgo = new Date(beijingTime);
     ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
     const ninetyDaysAgoStr = ninetyDaysAgo.toISOString().split('T')[0];
 

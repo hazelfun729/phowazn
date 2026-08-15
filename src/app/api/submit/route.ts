@@ -34,13 +34,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 验证日期不能是未来（使用本地时区比较）
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    // 将日期字符串解析为本地时间（避免时区问题）
-    const [year, month, day] = death_date.split('-').map(Number);
-    const deathDate = new Date(year, month - 1, day);
-    if (deathDate > today) {
+    // 验证日期不能是未来（统一使用北京时间 UTC+8）
+    const now = new Date();
+    const beijingTime = new Date(now.getTime() + 8 * 60 * 60 * 1000);
+    const todayStr = beijingTime.toISOString().split('T')[0];
+    if (death_date > todayStr) {
       return NextResponse.json(
         { error: '往生日期不能是未来时间' },
         { status: 400 }
