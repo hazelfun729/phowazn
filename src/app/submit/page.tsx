@@ -25,11 +25,11 @@ export default function SubmitPage() {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
 
-  // 获取今天的日期（用于日期选择器的最大值）
-  const today = new Date().toISOString().split('T')[0];
+  // 获取今天的日期（用于日期选择器的最大值）- 使用本地时间避免 UTC 偏移
+  const today = new Date().toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '-');
   const fortyNineDaysAgo = new Date();
   fortyNineDaysAgo.setDate(fortyNineDaysAgo.getDate() - 49);
-  const minDate = fortyNineDaysAgo.toISOString().split('T')[0];
+  const minDate = fortyNineDaysAgo.toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '-');
 
   const handleNext = () => {
     setError('');
@@ -266,6 +266,7 @@ export default function SubmitPage() {
                     onChange={(e) => setDeathDate(e.target.value)}
                     className="w-full px-4 py-3 border border-[#e8e4df] rounded focus:outline-none focus:border-[#8b6914] font-serif text-[#2c2c2c] bg-[#faf8f5]"
                   />
+                  <p className="text-[#6b6560] text-xs mt-2">点击日期框选择日期（可选择的范围：{minDate} 至 {today}）</p>
                 </div>
               </div>
             )}
