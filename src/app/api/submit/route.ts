@@ -56,6 +56,7 @@ export async function POST(request: NextRequest) {
     const client = getSupabaseClient();
 
     // 检查是否已存在（同一分类 + 同一姓名 + 同一往生日期）
+    // 如果已存在，直接返回成功，不提示用户（后台智能提取时去重）
     const { data: existing, error: checkError } = await client
       .from('deceased_records')
       .select('id')
@@ -69,10 +70,12 @@ export async function POST(request: NextRequest) {
     }
 
     if (existing && existing.length > 0) {
-      return NextResponse.json(
-        { error: '该姓名已存在，请勿重复填写' },
-        { status: 409 }
-      );
+      // 已存在，直接返回成功，不提示重复
+      return NextResponse.json({
+        success: true,
+        message: '提交成功',
+        duplicate: true,
+      });
     }
 
     // 插入数据
@@ -90,7 +93,7 @@ export async function POST(request: NextRequest) {
       throw new Error(`插入失败: ${error.message}`);
     }
 
-    // 记录上传日志
+    // 记录上传日志（非重复提交才记录）
     await client.from('upload_logs').insert({
       ip_address: ipAddress,
       user_agent: userAgent,
