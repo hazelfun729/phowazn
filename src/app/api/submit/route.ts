@@ -93,12 +93,12 @@ export async function POST(request: NextRequest) {
       throw new Error(`插入失败: ${error.message}`);
     }
 
-    // 记录上传日志（非重复提交才记录）
+    // 记录上传日志（包括重复提交）
     await client.from('upload_logs').insert({
       ip_address: ipAddress,
       user_agent: userAgent,
-      file_name: `表单提交: ${name}`,
-      record_count: 1,
+      file_name: `表单提交: ${name}${duplicate ? ' (重复)' : ''}`,
+      record_count: duplicate ? 0 : 1,
       source: 'form',
     });
 
