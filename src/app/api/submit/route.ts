@@ -70,7 +70,16 @@ export async function POST(request: NextRequest) {
     }
 
     if (existing && existing.length > 0) {
-      // 已存在，直接返回成功，不提示重复
+      // 已存在，记录上传日志（标记为重复）
+      await client.from('upload_logs').insert({
+        ip_address: ipAddress,
+        user_agent: userAgent,
+        file_name: `表单提交: ${name} (重复)`,
+        record_count: 0,
+        source: 'form',
+      });
+
+      // 直接返回成功，不提示重复
       return NextResponse.json({
         success: true,
         message: '提交成功',
@@ -93,12 +102,12 @@ export async function POST(request: NextRequest) {
       throw new Error(`插入失败: ${error.message}`);
     }
 
-    // 记录上传日志（包括重复提交）
+    // 记录上传日志（新提交）
     await client.from('upload_logs').insert({
       ip_address: ipAddress,
       user_agent: userAgent,
-      file_name: `表单提交: ${name}${duplicate ? ' (重复)' : ''}`,
-      record_count: duplicate ? 0 : 1,
+      file_name: `表单提交: ${name}`,
+      record_count: 1,
       source: 'form',
     });
 
